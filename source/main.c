@@ -62,12 +62,19 @@
 #define UDP_SERVER_TASK_STACK_SIZE                (5 * 1024)
 #define UDP_SERVER_TASK_PRIORITY                  (1)
 
+#define UPHY_RUNMODE_PROFINET 0
+#define UPHY_RUNMODE_ETHERNET_IP 1
+
 /*******************************************************************************
 * Global Variables
 ********************************************************************************/
 
 /* UDP server task handle. */
 TaskHandle_t server_task_handle;
+
+#define app_main_priority      OS_PRIORITY_BELOWNORMAL
+static TaskHandle_t app_task_hdl;
+
 
 /*******************************************************************************
 * Function Name: main
@@ -83,6 +90,57 @@ TaskHandle_t server_task_handle;
 *  int
 *
 *******************************************************************************/
+
+/* Header file includes */
+#include "cyhal.h"
+#include "cybsp.h"
+#include "cy_retarget_io.h"
+
+/* FreeRTOS header file */
+#include <FreeRTOS.h>
+#include <task.h>
+
+/* Cypress secure socket header file */
+#include "cy_secure_sockets.h"
+
+/* Ethernet connection manager header files */
+#include "cy_ecm.h"
+#include "cy_ecm_error.h"
+
+/* UDP server task header file. */
+#include "udp_server.h"
+
+/* Standard C header files */
+#include <inttypes.h>
+
+#include "osal.h"
+
+cy_rslt_t connect_to_ethernet(void);
+int uphy_main (int argc, char * argv[]);
+
+/* configure runmode */
+#define UPHY_DEFAULT_MODE UPHY_RUNMODE_PROFINET
+
+void uphy_task(void *)
+{
+#if UPHY_DEFAULT_MODE == UPHY_RUNMODE_PROFINET
+    char * argv[2] = {"up_autostart", "profinet"};
+#elif UPHY_DEFAULT_MODE == UPHY_RUNMODE_ETHERNET_IP
+    char * argv[2] = {"up_autostart", "ethernetip"};
+#endif
+
+    cy_rslt_t result;
+
+    /* Connect to ethernet network. */
+    result = connect_to_ethernet();
+    if(result!= CY_RSLT_SUCCESS )
+    {
+        printf("\n Failed to connect to the ethernet network! Error code: 0x%08"PRIx32"\n", (uint32_t)result);
+        CY_ASSERT(0);
+    }
+
+    uphy_main(2, argv);
+}
 
 int main(void)
 {
@@ -103,20 +161,93 @@ int main(void)
 
     /* \x1b[2J\x1b[;H - ANSI ESC sequence to clear screen. */
     printf("\x1b[2J\x1b[;H");
-    printf("===============================================================\n");
-    printf("                  CE235600 - Ethernet:UDP Server               \n");
-    printf("===============================================================\n\n");
 
-    /* Create the tasks. */
-    xTaskCreate(udp_server_task, "Network task", UDP_SERVER_TASK_STACK_SIZE, NULL,
-               UDP_SERVER_TASK_PRIORITY, &server_task_handle);
+    xTaskCreate( uphy_task, "uphy_main", 4000, ( void * ) NULL, OS_PRIORITY_HIGH, &app_task_hdl);
 
     /* Start the FreeRTOS scheduler. */
     vTaskStartScheduler();
 
     /* Should never get here. */
     CY_ASSERT(0);
+}
 
+
+__attribute__((noreturn)) void exit (int __status)
+{
+   printf("exit called\n");
+   CY_HALT();
+   while (1)
+      vTaskDelay(1000);
+} ;
+
+void HardFault_Handler      (void)
+{
+   printf("HardFault_Handler\n");
+
+#if defined(PRINT_HEAP_USAGE)
+   print_heap_usage();
+#endif
+
+   CY_HALT();
+};
+
+void NMIException_Handler     (void)
+{
+   printf("NMIException_Handler\n");
+   CY_HALT();
+};
+
+void MemManage_Handler     (void)
+{
+   printf("MemManage_Handler\n");
+   CY_HALT();
+};
+
+void BusFault_Handler       (void)
+{
+   printf("BusFault_Handler\n");
+   CY_HALT();
+};
+
+void UsageFault_Handler       (void)
+{
+   printf("UsageFault_Handler\n");
+   CY_HALT();
+};
+
+void DebugMon_Handler       (void)
+{
+   printf("DebugMon_Handler\n");
+   CY_HALT();
+};
+
+void cy_halt(void)
+{
+	printf("*** HALT ! ***\n");
+    CY_HALT();
+}
+
+void vApplicationMallocFailedHook( void )
+{
+   taskDISABLE_INTERRUPTS();
+   CY_ASSERT(0U != 0U);
+   CY_HALT();
+   for( ;; )
+   {
+   }
+}
+
+void vApplicationStackOverflowHook( TaskHandle_t xTask,
+                                        char * pcTaskName )
+{
+    (void)xTask;
+    (void)pcTaskName;
+    taskDISABLE_INTERRUPTS();
+    CY_ASSERT(0U != 0U);
+    CY_HALT();
+    for( ;; )
+    {
+    }
 }
 
 /* [] END OF FILE */

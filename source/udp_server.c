@@ -95,7 +95,7 @@ static void isr_button_press( void *callback_arg, cyhal_gpio_event_t event);
 void print_heap_usage(char *msg);
 
 /* Establish ethernet connection to the network. */
-static cy_rslt_t connect_to_ethernet(void);
+cy_rslt_t connect_to_ethernet(void);
 
 /*******************************************************************************
 * Global Variables
@@ -300,6 +300,9 @@ cy_rslt_t connect_to_ethernet(void)
             printf("Successfully connected to Ethernet.\n");
             printf("IP Address Assigned: %d.%d.%d.%d\n", (uint8)ip_addr.ip.v4,(uint8)(ip_addr.ip.v4 >> 8), (uint8)(ip_addr.ip.v4 >> 16),
                     (uint8)(ip_addr.ip.v4 >> 24));
+
+            //cy_ecm_set_promiscuous_mode(ecm_handle, true);
+            cy_ecm_broadcast_disable(ecm_handle, false);
 
             /* IP address and UDP port number of the UDP server */
             udp_server_addr.ip_address.ip.v4 = ip_addr.ip.v4;

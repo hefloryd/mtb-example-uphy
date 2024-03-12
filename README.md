@@ -1,247 +1,300 @@
-# Ethernet: UDP server
 
-This code example demonstrates the implementation of a UDP server with XMC7000.
+# RT-Labs U-Phy Demo
 
-In this example, the UDP server waits for the UDP client to establish a connection. Once a connection is established, the server allows the user to send the LED ON/OFF command to the UDP client through a button press; the client responds by sending an acknowledgement message to the server.
+<img src="img/u-phy.png" alt="Alt text" width="100" style="float:right; margin-right:50px;margin-bottom: 50px">
 
-This example uses the Ethernet Core FreeRTOS lwIP mbedtls library. This library enables Ethernet-based application development by bundling other libraries - FreeRTOS, lwIP TCP/IP stack, Mbed TLS, and Secure sockets. The Secure sockets library provides an easy-to-use API by abstracting the network stack (lwIP) and the security stack (Mbed TLS).
 
-[View this README on GitHub.](https://github.com/Infineon/mtb-example-ethernet-udp-server)
+[U-Phy](https://rt-labs.com/u-phy/) provides one single and unified API for all fieldbuses. 
 
-[Provide feedback on this code example.](https://cypress.co1.qualtrics.com/jfe/form/SV_1NTns53sK2yiljn?Q_EED=eyJVbmlxdWUgRG9jIElkIjoiQ0UyMzU2MDAiLCJTcGVjIE51bWJlciI6IjAwMi0zNTYwMCIsIkRvYyBUaXRsZSI6IkV0aGVybmV0OiBVRFAgc2VydmVyIiwicmlkIjoibmlndWRrYXIiLCJEb2MgdmVyc2lvbiI6IjEuMC4wIiwiRG9jIExhbmd1YWdlIjoiRW5nbGlzaCIsIkRvYyBEaXZpc2lvbiI6Ik1DRCIsIkRvYyBCVSI6IklDVyIsIkRvYyBGYW1pbHkiOiJQU09DIn0=)
+This demo package provides a small demo application & single library built for XMC72_EVK supporting following fieldbuses.
 
-## Requirements
+- Profinet 
+- EthernetIP
 
-- [ModusToolbox&trade; software](https://www.infineon.com/products/modustoolbox-software-environment) v3.0 or later (tested with v3.0)
-- Programming language: C
-- Associated parts: [XMC7000 MCU](https://www.infineon.com/cms/en/product/microcontroller/32-bit-industrial-microcontroller-based-on-arm-cortex-m/)
-
-
-## Supported toolchains (make variable 'TOOLCHAIN')
-
-- GNU Arm® embedded compiler v10.3.1 (`GCC_ARM`) - Default value of `TOOLCHAIN`
-- Arm&reg; compiler v6.16 (`ARM`)
-- IAR C/C++ compiler v9.30.1 (`IAR`)
-
-## Supported kits (make variable 'TARGET')
-
-- [XMC7200 evaluation kit](https://www.infineon.com/KIT_XMC72_EVK) (`KIT_XMC72_EVK`)
-
-
-## Hardware setup
-
-This example uses the board's default configuration. See the kit user guide to ensure that the board is configured correctly.
-
-
-## Software setup
-
-Install a terminal emulator if you don't have one. Instructions in this document use [Tera Term](https://ttssh2.osdn.jp/index.html.en).
-
-Install a Python interpreter if you do not have one. This code example is tested with [Python 3.7.7](https://www.python.org/downloads/release/python-377/) and it is recommended to use a python 3 version. 
-
-
-## Using the code example
-
-Create the project and open it using one of the following:
-
-<details><summary><b>In Eclipse IDE for ModusToolbox&trade; software</b></summary>
-
-1. Click the **New Application** link in the **Quick Panel** (or, use **File** > **New** > **ModusToolbox Application**). This launches the [Project Creator](https://www.infineon.com/ModusToolboxProjectCreator) tool.
-
-2. Pick a kit supported by the code example from the list shown in the **Project Creator - Choose Board Support Package (BSP)** dialog.
-
-   When you select a supported kit, the example is reconfigured automatically to work with the kit. To work with a different supported kit later, use the [Library Manager](https://www.infineon.com/ModusToolboxLibraryManager) to choose the BSP for the supported kit. You can use the Library Manager to select or update the BSP and firmware libraries used in this application. To access the Library Manager, click the link from the **Quick Panel**.
-
-   You can also start the application creation process again and select a different kit.
-
-   If you want to use the application for a kit not listed here, you may need to update the source files. If the kit does not have the required resources, the application may not work.
-
-3. In the **Project Creator - Select Application** dialog, choose the example by enabling the checkbox.
-
-4. (Optional) Change the suggested **New Application Name**.
-
-5. The **Application(s) Root Path** defaults to the Eclipse workspace which is usually the desired location for the application. If you want to store the application in a different location, you can change the *Application(s) Root Path* value. Applications that share libraries should be in the same root path.
-
-6. Click **Create** to complete the application creation process.
-
-For more details, see the [Eclipse IDE for ModusToolbox&trade; software user guide](https://www.infineon.com/MTBEclipseIDEUserGuide) (locally available at *{ModusToolbox&trade; software install directory}/ide_{version}/docs/mt_ide_user_guide.pdf*).
-
-</details>
-
-<details><summary><b>In command-line interface (CLI)</b></summary>
-
-ModusToolbox&trade; software provides the Project Creator as a GUI tool and the command-line tool, "project-creator-cli". The CLI tool can be used to create applications from a CLI terminal or from within batch files or shell scripts. This tool is available in the *{ModusToolbox&trade; software install directory}/tools_{version}/project-creator/* directory.
-
-Use a CLI terminal to invoke the "project-creator-cli" tool. On Windows, use the command line "modus-shell" program provided in the ModusToolbox&trade; software installation instead of a standard Windows command-line application. This shell allows access to all ModusToolbox&trade; software tools. You can access it by typing `modus-shell` in the search box in the Windows menu. In Linux and macOS, you can use any terminal application.
-
-This tool has the following arguments:
-
-Argument | Description | Required/optional
----------|-------------|-----------
-`--board-id` | Defined in the `<id>` field of the [BSP](https://github.com/Infineon?q=bsp-manifest&type=&language=&sort=) manifest | Required
-`--app-id`   | Defined in the `<id>` field of the [CE](https://github.com/Infineon?q=ce-manifest&type=&language=&sort=) manifest | Required
-`--target-dir`| Specify the directory in which the application is to be created if you prefer not to use the default current working directory | Optional
-`--user-app-name`| Specify the name of the application if you prefer to have a name other than the example's default name | Optional
-
-<br>
-
-The following example will clone the "[Ethernet: UDP server](https://github.com/Infineon/mtb-example-ethernet-udp-server) application with the desired name "MyUDPServer" configured for the *KIT_XMC72_EVK* BSP into the specified working directory, *C:/mtb_projects*:
-
-   ```
-   project-creator-cli --board-id KIT_XMC72_EVK --app-id mtb-example-ethernet-udp-server --user-app-name MyUDPServer --target-dir "C:/mtb_projects"
-   ```
-
-**Note:** The project-creator-cli tool uses the `git clone` and `make getlibs` commands to fetch the repository and import the required libraries. For details, see the "Project creator tools" section of the [ModusToolbox&trade; software user guide](https://www.infineon.com/ModusToolboxUserGuide) (locally available at *{ModusToolbox&trade; software install directory}/docs_{version}/mtb_user_guide.pdf*).
-
-</details>
-
-<details><summary><b>In third-party IDEs</b></summary>
-
-Use one of the following options:
-
-- **Use the standalone [Project Creator](https://www.infineon.com/ModusToolboxProjectCreator) tool:**
-
-   1. Launch Project Creator from the Windows Start menu or from *{ModusToolbox&trade; software install directory}/tools_{version}/project-creator/project-creator.exe*.
-
-   2. In the initial **Choose Board Support Package** screen, select the BSP, and click **Next**.
-
-   3. In the **Select Application** screen, select the appropriate IDE from the **Target IDE** drop-down menu.
-
-   4. Click **Create** and follow the instructions printed in the bottom pane to import or open the exported project in the respective IDE.
-
-<br>
-
-- **Use command-line interface (CLI):**
-
-   1. Follow the instructions from the **In command-line interface (CLI)** section to create the application, and then import the libraries using the `make getlibs` command.
-
-   2. Export the application to a supported IDE using the `make <ide>` command.
-
-   3. Follow the instructions displayed in the terminal to create or import the application as an IDE project.
-
-For a list of supported IDEs and more details, see the "Exporting to IDEs" section of the [ModusToolbox&trade; software user guide](https://www.infineon.com/ModusToolboxUserGuide) (locally available at *{ModusToolbox&trade; software install directory}/docs_{version}/mtb_user_guide.pdf*).
-
-</details>
-
-
-## Operation
-
-1. Connect the board to your PC using the provided USB cable through the KitProg3 USB connector.
-
-2. Connect one LAN cable from the target board(server) to the router and another LAN cable from your PC(client) to the router.
-
-3. Open a terminal program and select the KitProg3 COM port. Set the serial port parameters to 8N1 and 115200 baud.
-
-4. Program the board using one of the following:
-
-   <details><summary><b>Using Eclipse IDE for ModusToolbox&trade; software</b></summary>
-
-      1. Select the application project in the Project Explorer.
-
-      2. In the **Quick Panel**, scroll down, and click **\<Application Name> Program (KitProg3_MiniProg4)**.
-   </details>
-
-   <details><summary><b>Using CLI</b></summary>
-
-     From the terminal, execute the `make program` command to build and program the application using the default toolchain to the default target. The default toolchain and target are specified in the application's Makefile but you can override those values manually:
-      ```
-      make program TARGET=<BSP> TOOLCHAIN=<toolchain>
-      ```
-
-      Example:
-      ```
-      make program TARGET=KIT_XMC72_EVK TOOLCHAIN=GCC_ARM
-      ```
-   </details>
-
-5. After programming, the application starts automatically. Confirm that the following text as shown in **Figure 1** is displayed on the UART terminal. Note that the IP address assigned will be different based on the network that you have connected to.
-
-  **Figure 1. Terminal output for UDP server post programming**
-  
-  ![](images/udp-server-pre-connection.png)
-  
-6. Make a note of the IP address assigned to the kit(server) as shown in **Figure 1**.
-
-7. Open a command shell from the project directory and run the Python UDP client (udp_client.py) with the IP address from **Figure 1** as an argument through the option --hostname.
-For example, if the IP address assigned to your kit is 192.168.1.8, enter the command as follows:
 ```
-python udp_client.py --hostname 192.168.1.8
-```
-Note: Ensure that the firewall settings of your computer allow access to the Python software so that it can communicate with the UDP server. For more details on enabling Python access, see this [community thread](https://community.infineon.com/t5/ModusToolbox-General/CE229112-Enable-Python-access-to-your-WiFi/td-p/214654).
-
-8. Press the user button to send the LED ON/OFF command to the Python UDP client. Each user button press will issue the LED ON or LED OFF commands alternately. The client in turn sends an acknowledgment message back to the server. **Figure 2** and **Figure 3** show the UDP server and UDP client outputs respectively.
-
-  **Figure 2. UDP server output**
-  
-  ![](images/udp-server-output.png)
-
-  <br>
-
-  **Figure 3. UDP client output**
-
-  ![](images/udp-client-output.png)
-  
-
-  **Note:** 
-- The code example has been tested in a local LAN setup and in a simple private network such as a home network with VPN disabled. To test it in a complex network such as an enterprise network, please contact your IT department.
-- Check whether the port used for communication on your PC is an active port or not. If not, then you will have to open the firewall port. To display all the blocked and active ports configured in the firewall on PC, open command prompt(cmd for Windows) and enter the following command. 
-```
-netsh firewall show state
+ Demo device model 
+   -- 8 bit output (read only)
+   -- 8 bit input (write only)
+   -- 8 bit output/input (rw)
 ```
 
+By default profinet stack is started
 
-## Debugging
+Included demo project will start a profinet device which will showcase a small data loopback towards a codesys PLC application .
 
-You can debug the example to step through the code. In the IDE, use the **\<Application Name> Debug (KitProg3_MiniProg4)** configuration in the **Quick Panel**. For details, see the "Program and debug" section in the [Eclipse IDE for ModusToolbox&trade; software user guide](https://www.infineon.com/MTBEclipseIDEUserGuide).
+U-Phy continuously increments the 8 bit input value which the PLC will 'echo' to the 8 bit output value.
+
+*Note : this demo application is based on infineons UDP Ethernet Server example app.*
+
+To startup U-Phy using Ethernet IP please modify main.c
+
+```
+/* configure runmode */
+#define UPHY_DEFAULT_MODE UPHY_RUNMODE_ETHERNET_IP
+```
+
+## Building demo project in Modus Toolbox
+
+1. Start modus toolbox 3.1 (Eclipse IDE)
+2. New application -> KIT_XMC72_EVK -> Getting Started -> RT-Labs Demo
+3. Build project 
+4. Launch RT-Labs Demo onto XMC72_EVK using 'RT-Labs_Demo Program (KitProg3_MiniProg4)' launch target.
+
+## Find locally assigned IP address
+
+Open serial terminal to find out DHCP assigned IP address of board (or set static IP address in udp_server.h if preferred).
+
+Alternatively, specify a static ip address in proj_root/source/udp_server.h
+
+```
+Ethernet connection manager initialized.
+Successfully connected to Ethernet.
+IP Address Assigned: 10.10.0.117
+Starting sample application
+      9045 [INFO ] Enable events and poll event status
+      9045 [INFO ] Add device configuration to U-Phy Core
+      9045 [INFO ]   Device:  U-Phy DIGIO Sample
+      9047 [INFO ]   Bus:     Profinet
+      9051 [INFO ] Add device "U-Phy DIGIO Sample"
+      9055 [INFO ]   Serial number:       "1234"
+      9060 [INFO ]   Web server:       "Enabled"
+      9064 [INFO ]   Number of slots:     3
+      9068 [INFO ]   Slot[0]: I8
+      9071 [INFO ] Add slot 0 "I8" in_signals:1 out_signals:0 parameters:0
+      9077 [INFO ]   Add input signal 0 "Input 8 bits" UINT8 offset:0 n_bits:8
+      9084 [INFO ]   Slot[1]: O8
+      9087 [INFO ] Add slot 1 "O8" in_signals:0 out_signals:1 parameters:0
+      9094 [INFO ]   Add output signal 0 "Output 8 bits" UINT8 offset:0 n_bits:8
+      9101 [INFO ]   Slot[2]: I8O8
+      9104 [INFO ] Add slot 2 "I8O8" in_signals:1 out_signals:1 parameters:1
+      9111 [INFO ]   Add input signal 0 "Input 8 bits" UINT8 offset:1 n_bits:8
+      9118 [INFO ]   Add output signal 0 "Output 8 bits" UINT8 offset:1 n_bits:8
+      9125 [INFO ]   Add param 0 "Parameter 1" dtype:5 n_bits:32 flags:0
+      9131 [INFO ] Add bus config
+      9134 [INFO ] Activate configuration
+      9138 [INFO ] Activate configuration
+      9141 [INFO ] Start profinet
+      9144 [INFO ] Profinet configuration
+      9148 [INFO ]   P-Net version:        0.2.0
+      9152 [INFO ]   Max number of slots:  5 (incl slot for DAP module)
+      9159 [INFO ]   PUL log level:        5 (range VERBOSE=0 to FATAL=5)
+      9165 [INFO ]   Max number of ports:  2
+      9169 [INFO ]   Network interfaces:   enxc4411e82f6d4
+      9174 [INFO ]   Default station name: u-phy-dev
+      9179 [INFO ]   Min device interval:  32 (in units of 31.25 us)
+      9185 [INFO ]   Vendor ID:            0x0493
+      9189 [INFO ]   Device ID:            0x0003
+      9193 [INFO ]   Product name:         U-Phy DIGIO Sample
+      9199 [INFO ]   Order ID:             MOD01
+      9203 [INFO ]   Profile ID:           0x0000
+      9207 [INFO ]   Profile specific type:0x0000
+      9212 [INFO ]   Software revision:    0.1.27 V
+      9216 [INFO ]   Hardware revision:    1
+      9223 [INFO ] Status: 0x0002 [-|CONFIGURED|-]
+      9225 [INFO ] Configuration activated
+      9229 [INFO ] Status: 0x0003 [-|CONFIGURED|CONNECTED]
+      9334 [INFO ] Core status: 0x0003 [-|CONFIGURED|CONNECTED]
+      9334 [INFO ] Configuration activated
+      9334 [INFO ] Enable watchdog
+      9335 [INFO ] Enable watchdog
+      9785 [INFO ] Status: 0x0007 [RUNNING|CONFIGURED|CONNECTED]
+      9785 [INFO ] Core status: 0x0007 [RUNNING|CONFIGURED|CONNECTED]
+```
+
+*Note : before PLC is connected output will always stay at 0*
+
+## Installing Raspberry PI 4
+
+<div style="border: 1px solid black; padding: 10px;font-family: Consolas">
+
+1. Download and install Raspberry Pi Imager from https://www.raspberrypi.com/software/
+
+2. Start Raspberry Pi Imager
+
+3. In the Select OS dialog choose 'Raspberry Pi OS (64 bit)'
+
+4. Choose storage, select sdcard
+
+5. Press Next
+
+6. Edit Settings
+
+7. Ensure wireless LAN is not checked.
+
+8. Set hostname to something unique on local network e.g. 'codesys' or similar
+
+9. Set username and password (for ssh login from codesys)
+
+10. Save
+
+11. Press Y when asked to erase all data on media
+
+12. Once completed eject sdcard and insert into Rpi4
+
+13. Power up raspberry pi
+
+14. Find DHCP assigned IP address ```ping -4 <hostname>.local``` 
+    from a windows command prompt. This IP address will be required when setting up codesys.
+
+C:\Projects\Infineon\uphy_demo_package>ping -4 codesys
+
+Pinging codesys.local [10.10.0.113] with 32 bytes of data:
+Reply from 10.10.0.113: bytes=32 time=1ms TTL=64
+Reply from 10.10.0.113: bytes=32 time=1ms TTL=64
+
+15.  Verify SSH login works 'ssh user@ip_address
+</div>
+
+## Installing codesys
+
+<div style="border: 1px solid black; padding: 10px;font-family: Consolas">
+
+Full instructions for reference (signup & login required)
+
+[Downloading-and-installing-codesys-development-system-on-a-windows-pc](https://docs.rt-labs.com/p-net/using_codesys.html#downloading-and-installing-codesys-development-system-on-a-windows-pc) 
+
+1. Downloading and installing Codesys Development System on a Windows PC. The program can be downloaded from https://store.codesys.com/codesys.html. A trial version is available. Registration is required.
+
+2. Download “CODESYS Development System V3”, in the latest available version. The file is named CODESYS 64 <VERSION>.exe.
+
+3. Install it on a Windows machine by double clicking the icon.
+
+4. From within Codesys, install the “Codesys control for Raspberry Pi” by using the menu Tools ‣ Codesys installer.
+
+5. In the AddOns section use Browse and search for “raspberry”.
+
+6. Select the relevant row in the results, and click Install. When completed, there should be an entry Update Raspberry Pi available in the Tools menu.
+
+7. Restart the program after the installation.
+
+</div>
+
+## Installing Raspberry Pi Runtime
+
+<img src="img/raspberry_pi_tab.png"  style="width:250px; margin-bottom: 30px">
+
+<div style="border: 1px solid black; padding: 10px;font-family: Consolas">
+
+1. In Codesys on Windows, use the menu Tools “Update Raspberry Pi”. 
+
+2. Enter IP address of device under 'Select target'. (Scan button may work to detect the Rpi4 but often hangs  for several minutes and is not always finding the device using this method it is better to manually specify the IP address)
+
+3. Enter ssh login credentials chosen during RPi OS installation.
 
 
-## Design and implementation
+4. Under 'CODESYS Runtime Package'press Install button to install the required runtime files onto RPi4.
 
-This example executes an RTOS task: UDP server task.
-In this example, XMC7000 is configured as a UDP server which establishes a connection with a UDP client. Once the connection completes successfully, the server allows the user to send LED ON/OFF command to the UDP client; the client responds by sending an acknowledgement message to the server.
+5. Use “Standard” runtime in the pop-up window.
 
+6. Press Runtime -> Start to activate runtime on Rpi4.
 
-### Resources and settings
+When asked to setup user credentials for runtime please select something simple such as 
 
-**Table 1. Application resources**
+login : rt
+passwd : rt
 
- Resource  |  Alias/object     |    Purpose
- :------- | :------------    | :------------
- BUTTON (BSP) | CYBSP_USER_BTN | User button to send LED ON/OFF commands to the UDP client
-
-
-## Related resources
-
-Resources | Links
------------|------------------
-Application notes | [AN234334](https://www.infineon.com/dgdl/Infineon-AN234334_Getting_started_with_XMC7000_MCU_on_ModusToolbox_software-ApplicationNotes-v01_00-EN.pdf?fileId=8ac78c8c8412f8d301842d32c5765bfd) – Getting started with XMC7000 MCU on ModusToolbox&trade; software <br> | [XMC7000 MCU examples](https://github.com/infineon?q=mtb-example%20XMC7000%20NOT%20Deprecated) on GitHub
-Device documentation | [XMC7000 MCU datasheets](https://www.infineon.com/cms/en/product/microcontroller/32-bit-industrial-microcontroller-based-on-arm-cortex-m/) <br> [XMC7000 technical reference manuals](https://www.infineon.com/cms/en/product/microcontroller/32-bit-industrial-microcontroller-based-on-arm-cortex-m/) 
-Development kits | Select your kits from the [evaluation board finder](https://www.infineon.com/cms/en/design-support/finder-selection-tools/product-finder/evaluation-board) page.
-Libraries on GitHub | [mtb-pdl-cat1](https://github.com/Infineon/mtb-pdl-cat1) – PSoC&trade; 6 peripheral driver library (PDL) <br> [mtb-hal-cat1](https://github.com/Infineon/mtb-hal-cat1) – Hardware abstraction layer (HAL) library
-Middleware on GitHub  | [mcu-middleware](https://github.com/Infineon/modustoolbox-software) – Links to all MCU middleware
-Tools  | [Eclipse IDE for ModusToolbox&trade; software](https://www.infineon.com/modustoolbox) – ModusToolbox&trade; software is a collection of easy-to-use software and tools enabling rapid development with Infineon MCUs, covering applications from embedded sense and control to wireless and cloud-connected systems using AIROC&trade; Wi-Fi and Bluetooth® connectivity devices.
-
-<br>
-
-## Other resources
-
-Infineon provides a wealth of data at www.infineon.com to help you select the correct device and quickly and effectively integrate it into your design.
+</div>
 
 
-## Document history
+## U-Phy codesys demo project - Profinet
 
-Document title: *CE235600* - *Ethernet: UDP server*
+```
+File --> Open Project --> uphy_demo_package/codesys/u-phy-loopback_profinet.project
+```
+### Adjust codesys project network settings to match local network
 
- Version | Description of change
- ------- | ---------------------
- 1.0.0   | New code example
+<img src="img/setting_ethernet_controller.png" alt="Alt text"  style="width:600px;">
 
-<br>
+* Press Devices tab next to Raspberry Pi tab.
+* In the device tree press Ethernet (Ethernet) -> Browse
+* When asked for username / password select the login credentions created in the step above where raspberry pi runtime was installed onto raspberry pi (see above). Note : this is not the same as ssh login credentials (unless same was used in both places).
 
----------------------------------------------------------
+<img src="img/device_user_logon.png" alt="Alt text" style="width:400px;" >
 
-© Cypress Semiconductor Corporation, 2020-2022. This document is the property of Cypress Semiconductor Corporation, an Infineon Technologies company, and its affiliates ("Cypress").  This document, including any software or firmware included or referenced in this document ("Software"), is owned by Cypress under the intellectual property laws and treaties of the United States and other countries worldwide.  Cypress reserves all rights under such laws and treaties and does not, except as specifically stated in this paragraph, grant any license under its patents, copyrights, trademarks, or other intellectual property rights.  If the Software is not accompanied by a license agreement and you do not otherwise have a written agreement with Cypress governing the use of the Software, then Cypress hereby grants you a personal, non-exclusive, nontransferable license (without the right to sublicense) (1) under its copyright rights in the Software (a) for Software provided in source code form, to modify and reproduce the Software solely for use with Cypress hardware products, only internally within your organization, and (b) to distribute the Software in binary code form externally to end users (either directly or indirectly through resellers and distributors), solely for use on Cypress hardware product units, and (2) under those claims of Cypress’s patents that are infringed by the Software (as provided by Cypress, unmodified) to make, use, distribute, and import the Software solely for use with Cypress hardware products.  Any other use, reproduction, modification, translation, or compilation of the Software is prohibited.
-<br>
-TO THE EXTENT PERMITTED BY APPLICABLE LAW, CYPRESS MAKES NO WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, WITH REGARD TO THIS DOCUMENT OR ANY SOFTWARE OR ACCOMPANYING HARDWARE, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.  No computing device can be absolutely secure.  Therefore, despite security measures implemented in Cypress hardware or software products, Cypress shall have no liability arising out of any security breach, such as unauthorized access to or use of a Cypress product. CYPRESS DOES NOT REPRESENT, WARRANT, OR GUARANTEE THAT CYPRESS PRODUCTS, OR SYSTEMS CREATED USING CYPRESS PRODUCTS, WILL BE FREE FROM CORRUPTION, ATTACK, VIRUSES, INTERFERENCE, HACKING, DATA LOSS OR THEFT, OR OTHER SECURITY INTRUSION (collectively, "Security Breach").  Cypress disclaims any liability relating to any Security Breach, and you shall and hereby do release Cypress from any claim, damage, or other liability arising from any Security Breach.  In addition, the products described in these materials may contain design defects or errors known as errata which may cause the product to deviate from published specifications. To the extent permitted by applicable law, Cypress reserves the right to make changes to this document without further notice. Cypress does not assume any liability arising out of the application or use of any product or circuit described in this document. Any information provided in this document, including any sample design information or programming code, is provided only for reference purposes.  It is the responsibility of the user of this document to properly design, program, and test the functionality and safety of any application made of this information and any resulting product.  "High-Risk Device" means any device or system whose failure could cause personal injury, death, or property damage.  Examples of High-Risk Devices are weapons, nuclear installations, surgical implants, and other medical devices.  "Critical Component" means any component of a High-Risk Device whose failure to perform can be reasonably expected to cause, directly or indirectly, the failure of the High-Risk Device, or to affect its safety or effectiveness.  Cypress is not liable, in whole or in part, and you shall and hereby do release Cypress from any claim, damage, or other liability arising from any use of a Cypress product as a Critical Component in a High-Risk Device. You shall indemnify and hold Cypress, including its affiliates, and its directors, officers, employees, agents, distributors, and assigns harmless from and against all claims, costs, damages, and expenses, arising out of any claim, including claims for product liability, personal injury or death, or property damage arising from any use of a Cypress product as a Critical Component in a High-Risk Device. Cypress products are not intended or authorized for use as a Critical Component in any High-Risk Device except to the limited extent that (i) Cypress’s published data sheet for the product explicitly states Cypress has qualified the product for use in a specific High-Risk Device, or (ii) Cypress has given you advance written authorization to use the product as a Critical Component in the specific High-Risk Device and you have signed a separate indemnification agreement.
-<br>
-Cypress, the Cypress logo, and combinations thereof, WICED, ModusToolbox, PSoC, CapSense, EZ-USB, F-RAM, and Traveo are trademarks or registered trademarks of Cypress or a subsidiary of Cypress in the United States or in other countries. For a more complete list of Cypress trademarks, visit www.infineon.com. Other names and brands may be claimed as property of their respective owners.
+* Select interface matching raspberry pi ip address (typically eth0)
+
+<img src="img/select_interface.png" alt="Alt text"  style="width:400px;">
+
+### Set U_Phy_DIGIO_Sample network settings (Profinet)
+
+<img src="img/update_uphy_network_settings_pnet.png" alt="Alt text"  style="width:500px;">
+
+* Configure IP address of XMC72_EVK running U-Phy Demo application
+
+### Start Codesys PLC application
+
+<img src="img/start_plc.png" style="width:600px;" >
+
+* Press green marked button to compile PLC application7
+* Press red marked button to upload PLC application to Rpi runtime and press Yes in dialogue box.
+
+<img src="img/plc_upload.png"  style="width:400px;">
+
+* Press "play" button 
+  
+<img src="img/plc_start.png"  style="width:300px;" >
+
+
+### Verify PLC application running
+
+
+You should now see that in the xmc72 console that output value is updated and one step behind the input value. In each datacycle xmc72 will increment current 8-ibt input value and in the next cycle the codesys plc would have "echoed" the value back via the 8 bit output value.
+
+```
+757040 [INFO ] Status: 0x0007 [RUNNING|CONFIGURED|CONNECTED]
+757040 [INFO ] Core status: 0x0007 [RUNNING|CONFIGURED|CONNECTED]
+set input data to 1 (out is now 0)
+set input data to 2 (out is now 1)
+```
+
+The codesys application should now show green status on all entities in the device tree.
+
+
+* Click PLC_PRG tab and verify data input & output increments
+
+<img src="img/plc_prog_progress.png" alt="Alt text" style="width:400px;margin-bottom:30px">
+
+* In each data cycle the input value is updated and in the next that value would be "echoed" into the output value. Hence input value on U-Phy console log will always be one step higher than the output.
+
+
+## U-Phy codesys demo - Ethernet IP
+
+
+To startup U-Phy using Ethernet IP please modify main.c, recompile and launch.
+
+ ```
+/* configure runmode */
+#define UPHY_DEFAULT_MODE UPHY_RUNMODE_ETHERNET_IP
+ ```
+
+Open below project in codesys.
+
+
+```
+File --> Open Project --> uphy_demo_package/codesys/u-phy-loopback_ethernet_ip.project
+```
+
+### Adjust codesys project network settings to match local network
+
+<img src="img/setting_ethernet_controller_ethip.png" alt="Alt text"  style="width:500px;">
+
+* Press Devices tab next to Raspberry Pi tab.
+* In the device tree press Ethernet (Ethernet) -> Browse
+* When asked for username / password select the login credentions created in the step above where raspberry pi runtime was installed onto raspberry pi (see above). Note : this is not the same as ssh login credentials (unless same was used in both places).
+* Select interface matching raspberry pi ip address (typically eth0)
+
+
+
+### Set U_Phy_DIGIO_Sample network settings (EthernetIP)
+
+<img src="img/update_uphy_network_settings_ethip.png"  style="width:500px;" >
+
+* Configure IP address of XMC72_EVK running U-Phy Demo application
+
+### Start Codesys PLC application
+
+* Same steps as for profinet, please see above.
+
+### Verify PLC application running
+
+* Same steps as for profinet, please see above.

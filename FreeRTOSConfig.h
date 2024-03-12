@@ -1,13 +1,15 @@
 /*
- * FreeRTOS Kernel V10.4.3
- * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
+ * FreeRTOS Kernel V10.5.0
+ * Copyright (C) 2021 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
  * Copyright (C) 2019-2021 Cypress Semiconductor Corporation, or a subsidiary of
  * Cypress Semiconductor Corporation.  All Rights Reserved.
+ *
+ * Updated configuration to support CM7.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
  * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies o
  * the Software, and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
  *
@@ -43,6 +45,9 @@
  *----------------------------------------------------------*/
 
 #include "cy_utils.h"
+
+#ifndef UPHY_FREERTOS
+
 #include "cy_syslib.h"
 
 /* Get the low power configuration parameters from
@@ -51,6 +56,7 @@
  * CY_CFG_PWR_DEEPSLEEP_LATENCY - Deep Sleep Latency (ms)
  */
 #include "cycfg_system.h"
+#endif
 
 
 #define configUSE_PREEMPTION                    1
@@ -58,8 +64,8 @@
 #define configCPU_CLOCK_HZ                      SystemCoreClock
 #define configTICK_RATE_HZ                      1000u
 #define configMAX_PRIORITIES                    7
-#define configMINIMAL_STACK_SIZE                128
-#define configMAX_TASK_NAME_LEN                 16
+#define configMINIMAL_STACK_SIZE                (128*10)
+#define configMAX_TASK_NAME_LEN                 (16+8)
 #define configUSE_16_BIT_TICKS                  0
 #define configIDLE_SHOULD_YIELD                 1
 #define configUSE_TASK_NOTIFICATIONS            1
@@ -73,22 +79,29 @@
 #define configNUM_THREAD_LOCAL_STORAGE_POINTERS 5
 
 /* Memory allocation related definitions. */
-#define configSUPPORT_STATIC_ALLOCATION         1
+#define configSUPPORT_STATIC_ALLOCATION         1 /* ? */
 #define configSUPPORT_DYNAMIC_ALLOCATION        1
-#define configTOTAL_HEAP_SIZE                   10240
+#define configTOTAL_HEAP_SIZE                   10000
 #define configAPPLICATION_ALLOCATED_HEAP        0
 
 /* Hook function related definitions. */
 #define configUSE_IDLE_HOOK                     0
 #define configUSE_TICK_HOOK                     0
-#define configCHECK_FOR_STACK_OVERFLOW          2
+#define configCHECK_FOR_STACK_OVERFLOW          0 //2
 #define configUSE_MALLOC_FAILED_HOOK            1
 #define configUSE_DAEMON_TASK_STARTUP_HOOK      0
 
 /* Run time and task stats gathering related definitions. */
 #define configGENERATE_RUN_TIME_STATS           0
-#define configUSE_TRACE_FACILITY                1
+#define configUSE_TRACE_FACILITY                0
 #define configUSE_STATS_FORMATTING_FUNCTIONS    0
+
+#if configGENERATE_RUN_TIME_STATS > 0
+extern uint32_t read_high_res_timer(void);
+extern void setup_high_res_timer(void);
+#define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS setup_high_res_timer
+#define portGET_RUN_TIME_COUNTER_VALUE read_high_res_timer
+#endif
 
 /* Co-routine related definitions. */
 #define configUSE_CO_ROUTINES                   0
@@ -96,9 +109,9 @@
 
 /* Software timer related definitions. */
 #define configUSE_TIMERS                        1
-#define configTIMER_TASK_PRIORITY               3
+#define configTIMER_TASK_PRIORITY               6 /* see osal.h */
 #define configTIMER_QUEUE_LENGTH                10
-#define configTIMER_TASK_STACK_DEPTH            ( configMINIMAL_STACK_SIZE * 2 )
+#define configTIMER_TASK_STACK_DEPTH            ( configMINIMAL_STACK_SIZE * 4 )
 
 /*
 Interrupt nesting behavior configuration.
@@ -165,12 +178,13 @@ to exclude the API function. */
 #define INCLUDE_xTaskGetHandle                  0
 #define INCLUDE_xTaskResumeFromISR              1
 
+extern void cy_halt();
 /* Normal assert() semantics without relying on the provision of an assert.h
 header file. */
 #if defined(NDEBUG)
 #define configASSERT( x ) CY_UNUSED_PARAMETER( x )
 #else
-#define configASSERT( x ) if( ( x ) == 0 ) { taskDISABLE_INTERRUPTS(); CY_HALT(); }
+#define configASSERT( x ) if( ( x ) == 0 ) { taskDISABLE_INTERRUPTS(); cy_halt(); }
 #endif
 
 /* Definitions that map the FreeRTOS port interrupt handlers to their CMSIS
@@ -189,10 +203,16 @@ standard names - or at least those used in the unmodified vector table. */
 
 #define configHEAP_ALLOCATION_SCHEME            (HEAP_ALLOCATION_TYPE3)
 
+#if (CY_CFG_PWR_SYS_IDLE_MODE != CY_CFG_PWR_MODE_ACTIVE)
+/* tickless mode not supported yet in uphy */
+#define UPHY_DISABLE_TICKLESS
+#endif
+
 /* Check if the ModusToolbox Device Configurator Power personality parameter
  * "System Idle Power Mode" is set to either "CPU Sleep" or "System Deep Sleep".
  */
-#if defined(CY_CFG_PWR_SYS_IDLE_MODE) && \
+
+#if !defined(UPHY_DISABLE_TICKLESS) && defined(CY_CFG_PWR_SYS_IDLE_MODE) && \
     ((CY_CFG_PWR_SYS_IDLE_MODE == CY_CFG_PWR_MODE_SLEEP) || \
      (CY_CFG_PWR_SYS_IDLE_MODE == CY_CFG_PWR_MODE_DEEPSLEEP))
 
@@ -206,7 +226,6 @@ standard names - or at least those used in the unmodified vector table. */
 extern void vApplicationSleep( uint32_t xExpectedIdleTime );
 #define portSUPPRESS_TICKS_AND_SLEEP( xIdleTime ) vApplicationSleep( xIdleTime )
 #define configUSE_TICKLESS_IDLE                 2
-
 #else
 #define configUSE_TICKLESS_IDLE                 0
 #endif
@@ -229,5 +248,4 @@ extern void vApplicationSleep( uint32_t xExpectedIdleTime );
  * The compatible implementations are also provided by the clib-support library.
  */
 #define configUSE_NEWLIB_REENTRANT              1
-
 #endif /* FREERTOS_CONFIG_H */

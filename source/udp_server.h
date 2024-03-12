@@ -64,8 +64,8 @@
 /* Set the static IP address of the UDP server keeping the gateway
  * and subnet mask address same as that of UDP client
  */
-#define UDP_STATIC_IP_ADDR   MAKE_IPV4_ADDRESS( 192, 168, 1, 8 )
-#define UDP_STATIC_GATEWAY   MAKE_IPV4_ADDRESS( 192, 168, 1, 1 )
+#define UDP_STATIC_IP_ADDR   MAKE_IPV4_ADDRESS( 10, 10, 0, 120)
+#define UDP_STATIC_GATEWAY   MAKE_IPV4_ADDRESS( 10, 10, 0, 1 )
 #define UDP_NETMASK          MAKE_IPV4_ADDRESS( 255, 255, 255, 0 )
 #endif
 /*******************************************************************************
