@@ -58,7 +58,7 @@
 #define UDP_SERVER_RECV_TIMEOUT_MS                (500)
 
 /* Set to 1 to use static IP addressing for UDP server */
-#define ENABLE_STATIC_IP_ADDRESS (0u)
+#define ENABLE_STATIC_IP_ADDRESS (1u)
 
 #if ENABLE_STATIC_IP_ADDRESS
 /* Set the static IP address of the UDP server keeping the gateway
