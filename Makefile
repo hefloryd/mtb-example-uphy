@@ -42,7 +42,7 @@ TARGET=KIT_XMC72_EVK
 #
 # If APPNAME is edited, ensure to update or regenerate launch
 # configurations for your IDE.
-APPNAME=mtb-example-ethernet-udp-server
+APPNAME=mtb-example-uphy
 
 # Name of toolchain to use. Options include:
 #
