@@ -134,8 +134,6 @@ LDLIBS=
 LINKER_SCRIPT=
 
 # Custom pre-build commands to run.
-# Add path to device model-file to regenerate device artifacts  
-# PREBUILD=./uphy-prebuild.sh model/digio.json
 PREBUILD=
 
 # Custom post-build commands to run.
