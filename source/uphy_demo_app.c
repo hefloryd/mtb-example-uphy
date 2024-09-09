@@ -19,6 +19,7 @@
 #include "model.h"
 
 #include "uphy_demo_app.h"
+#include "shell.h"
 
 #include "math.h"
 #include "osal.h"
@@ -28,11 +29,6 @@
 #include <string.h>
 
 #include <stdio.h>
-
-#ifndef UPHY_DEMO_BUSTYPE
-#define UPHY_DEMO_BUSTYPE UP_BUSTYPE_PROFINET
-/*#define UPHY_DEMO_BUSTYPE UP_BUSTYPE_ETHERNETIP*/
-#endif
 
 extern cy_rslt_t connect_to_ethernet (void);
 
@@ -63,7 +59,7 @@ static up_cfg_t cfg = {
  * device. */
 static bool is_digio_sample_device = true;
 
-static TaskHandle_t uphy_task_hdl;
+static TaskHandle_t uphy_task_hdl = NULL;
 
 static const char * error_code_to_str (up_error_t error_code)
 {
@@ -87,6 +83,48 @@ static const char * error_code_to_str (up_error_t error_code)
       return "UNKNOWN";
    }
 }
+
+#define FILE_STUBS_ENABLED
+
+/* remove this once file system integrated */
+
+#ifdef FILE_STUBS_ENABLED
+#include <stdio.h>
+#include <unistd.h>
+#include <fcntl.h>
+
+#define STORAGE_ROOT "/" /* No trailing slash */
+
+int open_stub (const char * pathname, int flags)
+{
+   printf ("open_stub with pathname: %s, flags: %d\n", pathname, flags);
+   return 0;
+}
+
+ssize_t read_stub (int fd, void * buf, size_t count)
+{
+   printf ("read_stub on fd: %d, count: %zu\n", fd, count);
+   return 0;
+}
+
+int close_stub (int fd)
+{
+   printf ("close_stub on fd: %d\n", fd);
+   return 0;
+}
+
+int unlink_stub (const char * pathname)
+{
+   printf ("unlink_stub for pathname: %s\n", pathname);
+   return 0;
+}
+
+#define unlink unlink_stub
+#define open   open_stub
+#define close  close_stub
+#define read   read_stub
+
+#endif
 
 /*
  * Callback indicating that output data (from PLc) is available.
@@ -180,7 +218,7 @@ void up_app_main (up_t * up)
    printf ("Restart device\n");
 }
 
-up_t * up_app_init (void)
+up_t * up_app_init (up_bustype_t bustype)
 {
    up_t * up;
 
@@ -192,17 +230,24 @@ up_t * up_app_init (void)
       is_digio_sample_device = false;
    }
 
-   cfg.device->bustype = UPHY_DEMO_BUSTYPE;
+   cfg.device->bustype = bustype;
 
-#if (UPHY_DEMO_BUSTYPE == UP_BUSTYPE_PROFINET)
-   up_busconf.profinet = up_profinet_config;
-#elif (UPHY_DEMO_BUSTYPE == UP_BUSTYPE_ETHERNETIP)
-   up_busconf.ethernetip = up_ethernetip_config;
-#elif (UPHY_DEMO_BUSTYPE == UP_BUSTYPE_MOCK)
-   up_busconf.mock = up_mock_config;
-#else
-#error "UPHY_DEMO_BUSTYPE is not defined or bus is not supported"
-#endif
+   switch (bustype)
+   {
+   case UP_BUSTYPE_MOCK:
+      up_busconf.mock = up_mock_config;
+      break;
+   case UP_BUSTYPE_PROFINET:
+      up_busconf.profinet = up_profinet_config;
+      break;
+   case UP_BUSTYPE_ETHERNETIP:
+      up_busconf.ethernetip = up_ethernetip_config;
+      break;
+   case UP_BUSTYPE_ECAT:
+   default:
+      printf ("Bustype %d unsupported\n", bustype);
+      break;
+   }
 
    extern void up_core_init (void); // TBD - why not in header-file
    up_core_init();
@@ -212,19 +257,23 @@ up_t * up_app_init (void)
    return up;
 }
 
-void uphy_task (void *)
+void uphy_task (void * type)
 {
    up_t * up;
-
-   printf ("Starting U-Phy Demo\n");
-   printf ("Active device model: \"%s\"\n", cfg.device->name);
+   up_bustype_t bustype = (up_bustype_t)type;
+   cy_rslt_t result;
 
    /* Connect to ethernet network. */
+   printf ("Connecting ethernet...\n");
+
+   /* Note : this needs to be run in a task context as it will crash otherwize
+    */
+
    /* TBD - I think this shall be moved to porting layer or somehow
     * automatically handled by lib.
     * For example when running Profinet DHCP shall not be initiated by
     * configured ip used. */
-   cy_rslt_t result = connect_to_ethernet();
+   result = connect_to_ethernet();
    if (result != CY_RSLT_SUCCESS)
    {
       printf (
@@ -234,23 +283,187 @@ void uphy_task (void *)
       CY_ASSERT (0);
    }
 
+   printf ("Ethernet connected.\n");
+   printf ("Starting U-Phy Demo\n");
+   printf ("Active device model: \"%s\"\n", cfg.device->name);
+
    printf ("Init U-Phy Device \n");
-   up = up_app_init();
+   up = up_app_init (bustype);
 
    printf ("Run U-Phy Device \n");
    up_app_main (up);
 
-   printf ("error - unexptected return from up_app_main()\n");
+   printf ("Error - unexpected return from up_app_main()\n");
    CY_ASSERT (0);
+}
+
+static int str_to_bus_config (const char * str, up_bustype_t * bustype)
+{
+   if (str == NULL || bustype == NULL)
+   {
+      return -1;
+   }
+
+#if UP_DEVICE_PROFINET_SUPPORTED
+   if (strcmp (str, "profinet") == 0)
+   {
+      *bustype = UP_BUSTYPE_PROFINET;
+      return 0;
+   }
+#endif
+
+#if UP_DEVICE_ETHERCAT_SUPPORTED
+   if (strcmp (str, "ethercat") == 0)
+   {
+      *bustype = UP_BUSTYPE_ECAT;
+      return 0;
+   }
+#endif
+
+#if UP_DEVICE_ETHERNETIP_SUPPORTED
+   if (strcmp (str, "ethernetip") == 0)
+   {
+      *bustype = UP_BUSTYPE_ETHERNETIP;
+      return 0;
+   }
+#endif
+   if (strcmp (str, "mock") == 0)
+   {
+      *bustype = UP_BUSTYPE_MOCK;
+      return 0;
+   }
+
+   printf ("Unsupported fieldbus \"%s\". Is it supported by device model?\n", str);
+   return -1;
+}
+
+/**
+ * Read auto start configuration file and return the
+ * configured bustype.
+ *
+ * @return 0 if a device configuration was started.
+ *         -1 if no device configuration exists or on error
+ */
+
+int auto_start (up_bustype_t * bustype)
+{
+   char buf[32];
+   int f = open (STORAGE_ROOT "/autostart", O_RDONLY);
+   if (f > 0)
+   {
+      read (f, buf, sizeof (buf));
+      close (f);
+
+      if (str_to_bus_config (buf, bustype) == 0)
+      {
+         return 0;
+      }
+   }
+   else
+   {
+      printf (
+         "Autostart disabled, please start using console command 'up_start'\n");
+   }
+   return -1;
+}
+
+static void start_uphy (up_bustype_t bustype)
+{
+   /* Only allow starting uphy once */
+   if (uphy_task_hdl == NULL)
+   {
+      xTaskCreate (
+         uphy_task,
+         "uphy_task",
+         5000,
+         (void *)bustype,
+         OS_PRIORITY_HIGH,
+         &uphy_task_hdl);
+   }
 }
 
 void start_demo (void)
 {
-   xTaskCreate (
-      uphy_task,
-      "uphy_task",
-      5000,
-      (void *)NULL,
-      OS_PRIORITY_HIGH,
-      &uphy_task_hdl);
+   up_bustype_t bustype;
+
+   /* if autostart is configured, automatically start u-phy
+    * if not wait for shell console command */
+   if (auto_start (&bustype) == 0)
+   {
+      start_uphy (bustype);
+   }
 }
+
+int _cmd_start (int argc, char * argv[])
+{
+   char * fieldbus;
+   up_bustype_t bustype;
+
+   /* Check command line arguments */
+   if (argc != 2)
+   {
+      printf ("error - try \"help %s\n", argv[0]);
+      return -1;
+   }
+
+   fieldbus = argv[1];
+
+   if (str_to_bus_config (fieldbus, &bustype) == 0)
+   {
+      start_uphy (bustype);
+   }
+
+   return 0;
+}
+
+const shell_cmd_t cmd_start = {
+   .cmd = _cmd_start,
+   .name = "up_start",
+   .help_short = "start u-phy protocol",
+   .help_long = "Start u-phy host device.\n"
+                "Usage: up_start <protocol>\n"
+                "where protocol can be profinet, ethernetip or mock\n"};
+
+SHELL_CMD (cmd_start);
+
+int _cmd_autostart (int argc, char * argv[])
+{
+   up_bustype_t bustype;
+   char * fieldbus;
+
+   if (argc != 2)
+   {
+      printf ("error - try \"help %s\n", argv[0]);
+      return -1;
+   }
+
+   fieldbus = argv[1];
+   if ((argc == 2) && (str_to_bus_config (fieldbus, &bustype) == 0))
+   {
+      int f = open (STORAGE_ROOT "/autostart", O_WRONLY | O_CREAT);
+      write (f, fieldbus, strlen (fieldbus) + 1);
+      close (f);
+
+      printf ("%s autostart added\n", fieldbus);
+   }
+   else
+   {
+      printf ("autostart disabled\n");
+
+      unlink (STORAGE_ROOT "/autostart");
+      return -1;
+   }
+
+   return 0;
+}
+
+const shell_cmd_t cmd_autostart = {
+   .cmd = _cmd_autostart,
+   .name = "up_autostart",
+   .help_short = "configure u-phy device autostart",
+   .help_long = "Set u-phy autostart configuration \n"
+                "Usage: up_autostart <protocol>\n"
+                "where protocol can be profinet | ethernetip  | mock.\n"
+                "If no valid protocol is given, autostart is disabled."};
+
+SHELL_CMD (cmd_autostart);

@@ -24,6 +24,7 @@
 #include <task.h>
 
 #include "uphy_demo_app.h"
+#include "shell.h"
 #include <inttypes.h>
 
 #define LED_PROFINET_FLASH_DELAY (500 / portTICK_PERIOD_MS)
@@ -203,23 +204,17 @@ int main (void)
       CY_ASSERT (0);
    }
 
-   /* Enable global interrupts */
-   __enable_irq();
-
-   /* Initialize retarget-io to use the debug UART port */
-   cy_retarget_io_init (
-      CYBSP_DEBUG_UART_TX,
-      CYBSP_DEBUG_UART_RX,
-      CY_RETARGET_IO_BAUDRATE);
-
-   /* \x1b[2J\x1b[;H - ANSI ESC sequence to clear screen. */
-   printf ("\x1b[2J\x1b[;H");
+   /* Start uart shell console */
+   shell_console_init();
 
    init_leds();
 
    init_buttons();
 
    start_demo();
+
+   /* Enable global interrupts */
+   __enable_irq();
 
    /* Start the FreeRTOS scheduler. */
    vTaskStartScheduler();
