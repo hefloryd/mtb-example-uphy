@@ -391,6 +391,50 @@ const shell_cmd_t cmd_about = {
 
 SHELL_CMD (cmd_about);
 
+int _cmd_show_device (int argc, char * argv[])
+{
+   printf ("\"%s\"\r\n", up_device.name);
+
+   for (int i = 0; i < up_device.n_slots; i++)
+   {
+      up_slot_t slot = up_device.slots[i];
+      printf ("Slot[%d]: %s\r\n", i + 1, slot.name);
+
+      if (slot.n_inputs > 0)
+      {
+         for (int j = 0; j < slot.n_inputs; j++)
+         {
+            printf ("   [in] %s\r\n", slot.inputs[j].name);
+         }
+      }
+
+      if (slot.n_outputs > 0)
+      {
+         for (int j = 0; j < slot.n_outputs; j++)
+         {
+            printf ("  [out] %s\r\n", slot.outputs[j].name);
+         }
+      }
+
+      if (slot.n_params > 0)
+      {
+         for (int j = 0; j < slot.n_params; j++)
+         {
+            printf ("  [par] %s\r\n", slot.params[j].name);
+         }
+      }
+   }
+   return 0;
+}
+
+const shell_cmd_t cmd_show_device = {
+   .cmd = _cmd_show_device,
+   .name = "up_device",
+   .help_short = "show static device configuration",
+   .help_long = "Show static information from the device model."};
+
+SHELL_CMD (cmd_show_device);
+
 int _cmd_start (int argc, char * argv[])
 {
    char * fieldbus;
