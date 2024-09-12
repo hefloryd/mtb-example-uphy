@@ -25,6 +25,7 @@
 
 #include "uphy_demo_app.h"
 #include "shell.h"
+#include "filesys.h"
 #include <inttypes.h>
 
 #define LED_PROFINET_FLASH_DELAY (500 / portTICK_PERIOD_MS)
@@ -206,6 +207,9 @@ int main (void)
 
    /* Start uart shell console */
    shell_console_init();
+
+   /* Mount filesystem on serial flash */
+   fs_init();
 
    init_leds();
 

@@ -20,7 +20,7 @@
 
 #include "uphy_demo_app.h"
 #include "shell.h"
-
+#include "filesys.h"
 #include "math.h"
 #include "osal.h"
 #include <inttypes.h>
@@ -83,48 +83,6 @@ static const char * error_code_to_str (up_error_t error_code)
       return "UNKNOWN";
    }
 }
-
-#define FILE_STUBS_ENABLED
-
-/* remove this once file system integrated */
-
-#ifdef FILE_STUBS_ENABLED
-#include <stdio.h>
-#include <unistd.h>
-#include <fcntl.h>
-
-#define STORAGE_ROOT "/" /* No trailing slash */
-
-int open_stub (const char * pathname, int flags)
-{
-   printf ("open_stub with pathname: %s, flags: %d\n", pathname, flags);
-   return 0;
-}
-
-ssize_t read_stub (int fd, void * buf, size_t count)
-{
-   printf ("read_stub on fd: %d, count: %zu\n", fd, count);
-   return 0;
-}
-
-int close_stub (int fd)
-{
-   printf ("close_stub on fd: %d\n", fd);
-   return 0;
-}
-
-int unlink_stub (const char * pathname)
-{
-   printf ("unlink_stub for pathname: %s\n", pathname);
-   return 0;
-}
-
-#define unlink unlink_stub
-#define open   open_stub
-#define close  close_stub
-#define read   read_stub
-
-#endif
 
 /*
  * Callback indicating that output data (from PLc) is available.
@@ -348,21 +306,22 @@ static int str_to_bus_config (const char * str, up_bustype_t * bustype)
 int auto_start (up_bustype_t * bustype)
 {
    char buf[32];
-   int f = open (STORAGE_ROOT "/autostart", O_RDONLY);
+   int f = fs_open (STORAGE_ROOT "/autostart", O_RDONLY);
    if (f > 0)
    {
-      read (f, buf, sizeof (buf));
-      close (f);
+      fs_read (f, buf, sizeof (buf));
+      fs_close (f);
 
       if (str_to_bus_config (buf, bustype) == 0)
       {
+         printf ("Autostart enabled - %s\n", buf);
          return 0;
       }
    }
    else
    {
       printf (
-         "Autostart disabled, please start using console command 'up_start'\n");
+         "Autostart disabled, start U-Phy using console command 'up_start'\n");
    }
    return -1;
 }
@@ -440,9 +399,9 @@ int _cmd_autostart (int argc, char * argv[])
    fieldbus = argv[1];
    if ((argc == 2) && (str_to_bus_config (fieldbus, &bustype) == 0))
    {
-      int f = open (STORAGE_ROOT "/autostart", O_WRONLY | O_CREAT);
-      write (f, fieldbus, strlen (fieldbus) + 1);
-      close (f);
+      int f = fs_open (STORAGE_ROOT "/autostart", O_WRONLY | O_CREAT);
+      fs_write (f, fieldbus, strlen (fieldbus) + 1);
+      fs_close (f);
 
       printf ("%s autostart added\n", fieldbus);
    }
@@ -450,7 +409,7 @@ int _cmd_autostart (int argc, char * argv[])
    {
       printf ("autostart disabled\n");
 
-      unlink (STORAGE_ROOT "/autostart");
+      fs_unlink (STORAGE_ROOT "/autostart");
       return -1;
    }
 
