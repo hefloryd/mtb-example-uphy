@@ -369,6 +369,28 @@ void shell_print_start_banner (void)
    printf ("%s\r\n\r\n", DELIMITER_STR);
 }
 
+int _cmd_about (int argc, char * argv[])
+{
+   printf ("\r\nIndustrial Ethernet Demo\r\n\r\n");
+   printf ("This user example shows how to implement Industrial Ethernet\r\n"
+           "connectivity using the U-Phy Middleware. Currently Profinet and\r\n"
+           "Ethernet/IP is supported.\r\n\r\n"
+           "The application implements a basic I/O device connecting inputs\r\n"
+           "and outputs to the EVK buttons and LEDs.\r\n\r\n"
+           "Profinet GSDML and EtherNet/IP EDS files for integration in an\r\n"
+           "engineering tool are found in the `generated/` folder.\r\n\r\n"
+           "Start communication using 'up_start' command.\r\n");
+   return 0;
+}
+
+const shell_cmd_t cmd_about = {
+   .cmd = _cmd_about,
+   .name = "about",
+   .help_short = "about this application",
+   .help_long = "Print information about this application"};
+
+SHELL_CMD (cmd_about);
+
 int _cmd_start (int argc, char * argv[])
 {
    char * fieldbus;
