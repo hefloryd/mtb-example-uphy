@@ -353,6 +353,22 @@ void start_demo (void)
    }
 }
 
+void shell_print_start_banner (void)
+{
+   const char DELIMITER_STR[] =
+      "----------------------------------------------------------------------";
+
+   /* \x1b[2J\x1b[;H - ANSI ESC sequence for clear screen */
+   printf ("\x1b[2J\x1b[;H");
+   printf ("\r\n%s\r\n", DELIMITER_STR);
+   printf (" Industrial Ethernet Demo\r\n");
+   printf (" Configure communication protocol using this shell. Usage:\r\n");
+   printf ("  'help'  - list of available commands.\r\n");
+   printf ("  'about' - for information on this application\r\n");
+   printf ("\r\n Built %s\r\n", __DATE__ " at " __TIME__);
+   printf ("%s\r\n\r\n", DELIMITER_STR);
+}
+
 int _cmd_start (int argc, char * argv[])
 {
    char * fieldbus;
