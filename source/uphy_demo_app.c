@@ -296,13 +296,12 @@ static int str_to_bus_config (const char * str, up_bustype_t * bustype)
 }
 
 /**
- * Read auto start configuration file and return the
- * configured bustype.
+ * Read auto start configuration file.
  *
- * @return 0 if a device configuration was started.
- *         -1 if no device configuration exists or on error
+ * @param bustype pointer to bustype to be filled in
+ *
+ * @return 0 if autostart is enabled, -1 if not
  */
-
 int auto_start (up_bustype_t * bustype)
 {
    char buf[32];
