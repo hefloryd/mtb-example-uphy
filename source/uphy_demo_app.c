@@ -305,7 +305,7 @@ static int str_to_bus_config (const char * str, up_bustype_t * bustype)
 int auto_start (up_bustype_t * bustype)
 {
    char buf[32];
-   int f = fs_open (STORAGE_ROOT "/autostart", O_RDONLY);
+   int f = fs_open (STORAGE_ROOT "autostart", O_RDONLY);
    if (f > 0)
    {
       fs_read (f, buf, sizeof (buf));
@@ -480,7 +480,7 @@ int _cmd_autostart (int argc, char * argv[])
    fieldbus = argv[1];
    if ((argc == 2) && (str_to_bus_config (fieldbus, &bustype) == 0))
    {
-      int f = fs_open (STORAGE_ROOT "/autostart", O_WRONLY | O_CREAT);
+      int f = fs_open (STORAGE_ROOT "autostart", O_WRONLY | O_CREAT);
       fs_write (f, fieldbus, strlen (fieldbus) + 1);
       fs_close (f);
 
@@ -490,7 +490,7 @@ int _cmd_autostart (int argc, char * argv[])
    {
       printf ("autostart disabled\n");
 
-      fs_unlink (STORAGE_ROOT "/autostart");
+      fs_unlink (STORAGE_ROOT "autostart");
       return -1;
    }
 
