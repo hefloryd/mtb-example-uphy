@@ -58,11 +58,6 @@
                                 <MAUTypeItem Value="16" Extension="0" AdjustSupported="false" />
                             </MAUTypeList>
                         </PortSubmoduleItem>
-                        <PortSubmoduleItem ID="IDS_1_P2" SubmoduleIdentNumber="0x00008002" SubslotNumber="32770" TextId="IDT_NAME_PS2" MaxPortRxDelay="363" MaxPortTxDelay="1192" MAUType="100BASETXFD" PortDeactivationSupported="false" SupportsRingportConfig="false" IsDefaultRingport="false" SupportsMRP_InterconnPortConfig="false" ParameterizationDisallowed="false" IM5_Supported="false">
-                            <MAUTypeList ExtensionSupported="false">
-                                <MAUTypeItem Value="16" Extension="0" AdjustSupported="false" />
-                            </MAUTypeList>
-                        </PortSubmoduleItem>
                     </SystemDefinedSubmoduleList>
                 </DeviceAccessPointItem>
             </DeviceAccessPointList>
