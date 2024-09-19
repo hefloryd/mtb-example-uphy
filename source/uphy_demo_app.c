@@ -21,6 +21,7 @@
 #include "uphy_demo_app.h"
 #include "shell.h"
 #include "filesys.h"
+#include "network.h"
 #include "math.h"
 #include "osal.h"
 #include <inttypes.h>
@@ -29,8 +30,6 @@
 #include <string.h>
 
 #include <stdio.h>
-
-extern cy_rslt_t connect_to_ethernet (void);
 
 /* U-Phy callbacks */
 static void cb_avail (up_t * up, void * user_arg);
@@ -220,18 +219,23 @@ void uphy_task (void * type)
    up_t * up;
    up_bustype_t bustype = (up_bustype_t)type;
    cy_rslt_t result;
+   ip_config_t ip_config;
 
-   /* Connect to ethernet network. */
-   printf ("Connecting ethernet...\n");
+   if (bustype == UP_BUSTYPE_PROFINET)
+   {
+      /* Profinet stack will handle IP addresses */
+      ip_config = IP_CONFIG_STATIC;
+   }
+   else
+   {
+      /* Use DHCP */
+      ip_config = IP_CONFIG_DYNAMIC;
+   }
 
-   /* Note : this needs to be run in a task context as it will crash otherwize
-    */
+   printf ("Init network\n");
+   printf ("Application will hang until ethernet cable is inserted\n");
 
-   /* TBD - I think this shall be moved to porting layer or somehow
-    * automatically handled by lib.
-    * For example when running Profinet DHCP shall not be initiated by
-    * configured ip used. */
-   result = connect_to_ethernet();
+   result = connect_to_ethernet (ip_config);
    if (result != CY_RSLT_SUCCESS)
    {
       printf (
