@@ -39,7 +39,7 @@ After building and programming the example, the EVK can be connected to a Profin
 ## Getting started
 
 ### Building and program application using Modus Toolbox
-1. Start modus toolbox 3.1 (Eclipse IDE)
+1. Start modus toolbox 3.2 (Eclipse IDE)
 2. New application -> KIT_XMC72_EVK -> Getting Started -> RT-Labs Demo
 3. Build project
 4. Launch RT-Labs Demo onto XMC72_EVK using 'RT-Labs_Demo Program (KitProg3_MiniProg4)' launch target.
@@ -56,16 +56,62 @@ For Profinet users a natural first step of evaluation is to flash the LED using 
 ### Command Line Interface
 The Command Line Interface (CLI) is available on the EVK USB serial interface. It is used to configure the active protocol and also to watch and set the current status of the I/O data. It is also possible to store the active protocol to nonvolatile memory which is useful for demos and testing.
 
-- TBD 
-    - Serial settings
-    - Start command
-
+```
+Default UART setting :
+    - 115200 baud
+    - 8 bits
+    - No parity
+    - 1 stop bit
+```
 
 A list of supported commands are displayed using the help command:
 
 ```
-  u-phy>help
-  u-phy>.....TODO add shell log
+----------------------------------------------------------------------
+ Industrial Ethernet Demo
+ Configure communication protocol using this shell. Usage:
+  'help'  - list of available commands.
+  'about' - for information on this application
+
+ Built Sep 26 2024 at 12:07:04
+----------------------------------------------------------------------
+
+Autostart enabled - profinet
+Init network
+Application will hang until ethernet cable is inserted
+> Ethernet connection manager initialized.
+IP: Static
+MAC: 00:03:19:45:00:00 (default)
+
+> help
+about                - about this application
+up_alarm             - up_alarm <add/remove> <slot_ix> <level> <error_type>
+up_autostart         - configure u-phy device autostart
+format_fs            - format the filesystem
+help                 - show help
+mac                  - read/write MAC address
+reboot               - reboot the device
+up_device            - show static device configuration
+up_signal            - get or set signal value and status
+up_start             - start u-phy protocol
+up_status            - show device status and signal values
+
+> about
+
+Industrial Ethernet Demo
+
+This user example shows how to implement Industrial Ethernet
+connectivity using the U-Phy Middleware. Currently Profinet and
+Ethernet/IP is supported.
+
+The application implements a basic I/O device connecting inputs
+and outputs to the EVK buttons and LEDs.
+
+Profinet GSDML and EtherNet/IP EDS files for integration in an
+engineering tool are found in the `generated/` folder.
+
+Start communication using 'up_start' command.
+
 ```
 
 ### Device I/O Data
