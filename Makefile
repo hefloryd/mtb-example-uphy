@@ -42,7 +42,7 @@ TARGET=KIT_XMC72_EVK
 #
 # If APPNAME is edited, ensure to update or regenerate launch
 # configurations for your IDE.
-APPNAME=mtb-example-uphy
+APPNAME=mtb-example-uphy-sandbox-maag
 
 # Name of toolchain to use. Options include:
 #
