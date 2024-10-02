@@ -36,7 +36,7 @@ MTB_TYPE=COMBINED
 # configurations. If TARGET is manually edited, ensure TARGET_<BSP>.mtb with a
 # valid URL exists in the application, run 'make getlibs' to fetch BSP contents
 # and update or regenerate launch configurations for your IDE.
-TARGET=KIT_XMC72_EVK
+TARGET=APP_KIT_XMC72_EVK
 
 # Name of application (used to derive name of final linked file).
 #
@@ -81,9 +81,8 @@ VERBOSE=
 # ... then code in directories named COMPONENT_foo and COMPONENT_bar will be
 # added to the build
 #
-COMPONENTS=LWIP FREERTOS
+COMPONENTS=MBEDTLS LWIP FREERTOS
 
-#RTOS_AWARE
 
 # Like COMPONENTS, but disable optional code that was enabled by default.
 DISABLE_COMPONENTS=
@@ -101,7 +100,9 @@ INCLUDES= ./libs
 MBEDTLSFLAGS = MBEDTLS_USER_CONFIG_FILE='"configs/mbedtls_user_config.h"'
 
 # Add additional defines to the build process (without a leading -D).
-DEFINES=$(MBEDTLSFLAGS) CYBSP_ETHERNET_CAPABLE  
+DEFINES=$(MBEDTLSFLAGS) CY_RTOS_AWARE CYBSP_ETHERNET_CAPABLE CY_RETARGET_IO_CONVERT_LF_TO_CRLF
+# Disable the data cache for XMC7000 devices
+DEFINES+=CY_DISABLE_XMC7000_DATA_CACHE
 
 # Select softfp or hardfp floating point. Default is softfp.
 VFP_SELECT=
