@@ -40,9 +40,9 @@ After building and programming the example, the EVK can be connected to a Profin
 
 ### Building and program application using Modus Toolbox
 1. Start modus toolbox 3.2 (Eclipse IDE)
-2. New application -> KIT_XMC72_EVK -> Getting Started -> RT-Labs Demo
+2. New application -> KIT_XMC72_EVK -> Getting Started -> Industrial Ethernet
 3. Build project
-4. Launch RT-Labs Demo onto XMC72_EVK using 'RT-Labs_Demo Program (KitProg3_MiniProg4)' launch target.
+4. Launch Industrial Ethernet onto XMC72_EVK using 'Industrial_Ethernet Program (KitProg3_MiniProg4)' launch target.
 5. Verify that USER_LED3 flashes at 0,5Hz
 
 ### Mode LED
