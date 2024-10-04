@@ -61,7 +61,7 @@
 #define LWIP_SUPPORT_CUSTOM_PBUF        (1)
 
 #define ETHARP_SUPPORT_STATIC_ENTRIES   (1)
-
+#define ETHARP_SUPPORT_VLAN             (1)
 //
 // Enable IPV4 networking
 //
