@@ -360,7 +360,7 @@
                     <Parameters>
                         <Param id="Acceptbroadcastframe" value="true"/>
                         <Param id="Autonegotate" value="true"/>
-                        <Param id="DHCPBool" value="true"/>
+                        <Param id="DHCPBool" value="false"/>
                         <Param id="MACclk" value="0u"/>
                         <Param id="NVICintrnum" value="3"/>
                         <Param id="PHYInterconnect" value="3u"/>
@@ -374,10 +374,13 @@
                         <Param id="enable_ip_fragment" value="false"/>
                         <Param id="enable_ip_option" value="true"/>
                         <Param id="enable_ip_reassembly" value="false"/>
-                        <Param id="enable_ipv6" value="true"/>
+                        <Param id="enable_ipv6" value="false"/>
+                        <Param id="eth_gateway_address" value="000.000.000.000"/>
+                        <Param id="eth_ip_address" value="000.000.000.000"/>
                         <Param id="eth_mac_address" value="00:03:19:45:00:00"/>
                         <Param id="eth_phy_address" value="0"/>
                         <Param id="eth_phy_device" value="ETH_PHY_DP83867IR"/>
+                        <Param id="eth_subnet_mask" value="255.255.255.000"/>
                         <Param id="icmp" value="true"/>
                         <Param id="igmp" value="true"/>
                         <Param id="mem_size" value="1600"/>

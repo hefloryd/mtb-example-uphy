@@ -70,19 +70,14 @@ A list of supported commands are displayed using the help command:
 ----------------------------------------------------------------------
  Industrial Ethernet Demo
  Configure communication protocol using this shell. Usage:
-  'help'  - list of available commands.
-  'about' - for information on this application
+  'help'       - list of available commands
+  'help <cmd>' - show command details
+  'about'      - for information on this application
 
- Built Sep 26 2024 at 12:07:04
+ Built Oct  8 2024 at 10:07:02
 ----------------------------------------------------------------------
 
-Autostart enabled - profinet
-Init network
-Application will hang until ethernet cable is inserted
-> Ethernet connection manager initialized.
-IP: Static
-MAC: 00:03:19:45:00:00 (default)
-
+Autostart disabled, start U-Phy using console command 'up_start'
 > help
 about                - about this application
 up_alarm             - up_alarm <add/remove> <slot_ix> <level> <error_type>
@@ -95,6 +90,7 @@ up_device            - show static device configuration
 up_signal            - get or set signal value and status
 up_start             - start u-phy protocol
 up_status            - show device status and signal values
+netcfg               - configure network parameters
 
 > about
 
@@ -131,7 +127,32 @@ Note that CLI can be used to watch or set the IO-data.
   
 ### Find locally assigned IP address
 The IP address of your device / EVk is found in the serial log. Note that the IP address is set by engineering tools and may change when switching the active protocol.
-  
+
+IP address may also be shown via shell command 'netcfg'
+
+> netcfg
+
+[en0] :
+  mac address : 00:03:19:45:00:01
+  ipaddress   : 192.168.2.25
+  netmask     : 255.255.255.0
+  gateway     : 192.168.2.1
+  hostname    : not set
+  dhcp        : enabled
+
+### Configuring network
+
+Out of the box, this sample app will configure DHCP for Ethernet/IP and static ip address when selecting Profinet.
+Static IP is configured in mtb_shared/rtlabs-uphy-lib/latest-v1.X/src/network/network.h
+
+#define APP_STATIC_IP_ADDR MAKE_IPV4_ADDRESS (192, 168, 0, 50)
+#define APP_NETMASK        MAKE_IPV4_ADDRESS (255, 255, 255, 0)
+#define APP_STATIC_GATEWAY MAKE_IPV4_ADDRESS (192, 168, 0, 1)
+
+Network configuration may also be set in runtime using the 'netcfg' console command.
+
+Type 'help netcfg' for details.
+
 ### Connect to PLC
 Device description files are available in the ``generated\`` folder
 If you are new to the protocol you want to evaluate information on how to get started is found in the the U-Phy Middleware documentation.
