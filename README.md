@@ -130,6 +130,7 @@ The IP address of your device / EVk is found in the serial log. Note that the IP
 
 IP address may also be shown via shell command 'netcfg'
 
+```
 > netcfg
 
 [en0] :
@@ -139,19 +140,20 @@ IP address may also be shown via shell command 'netcfg'
   gateway     : 192.168.2.1
   hostname    : not set
   dhcp        : enabled
+```
 
 ### Configuring network
 
 Out of the box, this sample app will configure DHCP for Ethernet/IP and static ip address when selecting Profinet.
-Static IP is configured in mtb_shared/rtlabs-uphy-lib/latest-v1.X/src/network/network.h
+Network configuration may be set in runtime using the 'netcfg' console command.
 
+The default static IP is configured in mtb_shared/rtlabs-uphy-lib/latest-v1.X/src/network/network.h
+
+```
 #define APP_STATIC_IP_ADDR MAKE_IPV4_ADDRESS (192, 168, 0, 50)
 #define APP_NETMASK        MAKE_IPV4_ADDRESS (255, 255, 255, 0)
 #define APP_STATIC_GATEWAY MAKE_IPV4_ADDRESS (192, 168, 0, 1)
-
-Network configuration may also be set in runtime using the 'netcfg' console command.
-
-Type 'help netcfg' for details.
+```
 
 ### Connect to PLC
 Device description files are available in the ``generated\`` folder
