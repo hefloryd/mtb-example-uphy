@@ -59,6 +59,7 @@ static up_cfg_t cfg = {
 static bool is_digio_sample_device = true;
 
 static TaskHandle_t uphy_task_hdl = NULL;
+static up_bustype_t start_bustype = UP_BUSTYPE_PROFINET;
 
 static const char * error_code_to_str (up_error_t error_code)
 {
@@ -214,28 +215,18 @@ up_t * up_app_init (up_bustype_t bustype)
    return up;
 }
 
-void uphy_task (void * type)
+void uphy_task (void * arg)
 {
    up_t * up;
-   up_bustype_t bustype = (up_bustype_t)type;
    cy_rslt_t result;
-   ip_config_t ip_config;
-
-   if (bustype == UP_BUSTYPE_PROFINET)
-   {
-      /* Profinet stack will handle IP addresses */
-      ip_config = IP_CONFIG_STATIC;
-   }
-   else
-   {
-      /* Use DHCP */
-      ip_config = IP_CONFIG_DYNAMIC;
-   }
 
    printf ("Init network\n");
    printf ("Application will hang until ethernet cable is inserted\n");
 
-   result = connect_to_ethernet (ip_config);
+   /* always start using static address to ensure connection manager
+    * completes even without a DHCP server */
+
+   result = connect_to_ethernet (IP_CONFIG_STATIC);
    if (result != CY_RSLT_SUCCESS)
    {
       printf (
@@ -246,11 +237,21 @@ void uphy_task (void * type)
    }
 
    printf ("Ethernet connected.\n");
+
+   /* if autostart is configured, automatically start u-phy
+    * if not wait for shell console command */
+   if (auto_start (&start_bustype) != 0)
+   {
+      /* autostart not set, wait until user starts protocol */
+      uint32_t task_wait_flag = ulTaskNotifyTake (pdTRUE, portMAX_DELAY);
+      CY_ASSERT (task_wait_flag > 0);
+   }
+
    printf ("Starting U-Phy Demo\n");
    printf ("Active device model: \"%s\"\n", cfg.device->name);
 
    printf ("Init U-Phy Device \n");
-   up = up_app_init (bustype);
+   up = up_app_init (start_bustype);
 
    printf ("Run U-Phy Device \n");
    up_app_main (up);
@@ -329,7 +330,7 @@ int auto_start (up_bustype_t * bustype)
    return -1;
 }
 
-static void start_uphy (up_bustype_t bustype)
+void start_demo (void)
 {
    /* Only allow starting uphy once */
    if (uphy_task_hdl == NULL)
@@ -338,21 +339,18 @@ static void start_uphy (up_bustype_t bustype)
          uphy_task,
          "uphy_task",
          5000,
-         (void *)bustype,
+         NULL,
          OS_PRIORITY_HIGH,
          &uphy_task_hdl);
    }
 }
 
-void start_demo (void)
+void start_uphy (up_bustype_t bustype)
 {
-   up_bustype_t bustype;
-
-   /* if autostart is configured, automatically start u-phy
-    * if not wait for shell console command */
-   if (auto_start (&bustype) == 0)
+   if (uphy_task_hdl > 0)
    {
-      start_uphy (bustype);
+      start_bustype = bustype;
+      xTaskNotifyGive (uphy_task_hdl);
    }
 }
 
