@@ -17,6 +17,7 @@
 #include "cy_retarget_io.h"
 #include "cybsp.h"
 #include "cyhal.h"
+#include "cy_log.h"
 
 /* FreeRTOS header file */
 #include <FreeRTOS.h>
@@ -194,6 +195,41 @@ void init_buttons (void)
       CYBSP_BTN_OFF);
 }
 
+int app_log_output_callback (
+   CY_LOG_FACILITY_T facility,
+   CY_LOG_LEVEL_T level,
+   char * logmsg)
+{
+   const char * level_str = "";
+
+   (void)facility;
+
+   switch (level)
+   {
+   case CY_LOG_OFF:
+      /* Don't print */
+      return 0;
+   case CY_LOG_ERR:
+      level_str = "ERROR";
+      break;
+   case CY_LOG_WARNING:
+      level_str = "WARN ";
+      break;
+   case CY_LOG_NOTICE:
+      level_str = "NOTE ";
+      break;
+   case CY_LOG_INFO:
+      level_str = "INFO ";
+      break;
+   case CY_LOG_DEBUG:
+   default:
+      level_str = "DEBUG";
+      break;
+   }
+
+   return printf( "%s %s", level_str, logmsg);
+}
+
 int main (void)
 {
    cy_rslt_t result;
@@ -204,6 +240,10 @@ int main (void)
    {
       CY_ASSERT (0);
    }
+
+   /* Initialize logging  
+    * U-Phy messages are indentified as CYLF_MIDDLEWARE */
+   cy_log_init(CY_LOG_INFO, app_log_output_callback, NULL);
 
    /* Start uart shell console */
    shell_console_init();
