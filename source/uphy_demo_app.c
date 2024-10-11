@@ -358,17 +358,17 @@ void shell_print_start_banner (void)
 {
    const char DELIMITER_STR[] =
       "----------------------------------------------------------------------";
-
    /* \x1b[2J\x1b[;H - ANSI ESC sequence for clear screen */
    printf ("\x1b[2J\x1b[;H");
-   printf ("\r\n%s\r\n", DELIMITER_STR);
-   printf (" Industrial Ethernet Demo\r\n");
-   printf (" Configure communication protocol using this shell. Usage:\r\n");
-   printf ("  'help'       - list of available commands\r\n");
-   printf ("  'help <cmd>' - detailed help\r\n");
-   printf ("  'about'      - for information on this application\r\n");
-   printf ("\r\n Built %s\r\n", __DATE__ " at " __TIME__);
-   printf ("%s\r\n\r\n", DELIMITER_STR);
+   printf ("\n%s\n", DELIMITER_STR);
+   printf (" Industrial Ethernet Demo\n");
+   printf (" Configure communication protocol using this shell. Usage:\n");
+   printf ("  'help'       - list of available commands\n");
+   printf ("  'help <cmd>' - detailed help\n");
+   printf ("  'about'      - for information on this application\n\n");
+   printf (" Built:    %s\n", __DATE__ " at " __TIME__);
+   printf (" U-Phy MW: %s\n", up_version());
+   printf ("%s\n\n", DELIMITER_STR);
 }
 
 int _cmd_about (int argc, char * argv[])
