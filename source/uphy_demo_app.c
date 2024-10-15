@@ -61,6 +61,8 @@ static bool is_digio_sample_device = true;
 static TaskHandle_t uphy_task_hdl = NULL;
 static up_bustype_t start_bustype = UP_BUSTYPE_PROFINET;
 
+int auto_start (up_bustype_t * bustype);
+
 static const char * error_code_to_str (up_error_t error_code)
 {
    switch (error_code)
