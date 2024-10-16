@@ -91,7 +91,8 @@ DISABLE_COMPONENTS=
 # tree for source code and builds it. The SOURCES variable can be used to
 # manually add source code to the build process from a location not searched
 # by default, or otherwise not found by the build system.
-SOURCES=
+# Add lwip snmp app to build
+SOURCES=$(wildcard $(SEARCH_lwip)/src/apps/snmp/*.c)
 
 # Like SOURCES, but for include directories. Value should be paths to
 # directories (without a leading -I).
@@ -135,7 +136,10 @@ LDLIBS=
 LINKER_SCRIPT=uphy-linker-script.ld
 
 # Custom pre-build commands to run.
-PREBUILD=
+# Touch demo application to refresh build date in serial shell banner
+# Install lwip snmp patch from rtlabs-uphy-lib middleware
+PREBUILD=touch source/uphy_demo_app.c && \
+cp -rf  $(SEARCH_rtlabs-uphy-lib)/src/lwip/src $(SEARCH_lwip)
 
 # Custom post-build commands to run.
 POSTBUILD=

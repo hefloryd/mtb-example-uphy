@@ -285,9 +285,13 @@ extern void sys_check_core_locking() ;
 
 // UPHY-MODS BEGIN
 
-#define LWIP_NETIF_HOSTNAME         (1)
-#define LWIP_SNMP                   (1)
-#define MIB2_STATS                  (1)
+#define LWIP_NETIF_HOSTNAME            (1)
+#define LWIP_SNMP                      (1)
+#define MIB2_STATS                     (1)
+#define SNMP_USE_NETCONN               (1)
+#define SNMP_USE_RAW                   (0)
+#define SNMP_SYSSERVICES               ((1 << 6) | (1 << 3) | (1 << 2) | (1 << 1))
+#define SNMP_STACK_SIZE                (4000)
 #define LWIP_HOOK_UNKNOWN_ETH_PROTOCOL lwip_hook_unknown_eth_protocol
 #define LWIP_COMPAT_SOCKETS          1
 #define IP_SOF_BROADCAST 1
