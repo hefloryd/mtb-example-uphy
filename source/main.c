@@ -210,24 +210,24 @@ int app_log_output_callback (
       /* Don't print */
       return 0;
    case CY_LOG_ERR:
-      level_str = "ERROR";
+      level_str = "[ERROR]";
       break;
    case CY_LOG_WARNING:
-      level_str = "WARN ";
+      level_str = "[WARN]";
       break;
    case CY_LOG_NOTICE:
-      level_str = "NOTE ";
+      level_str = "[NOTE]";
       break;
    case CY_LOG_INFO:
-      level_str = "INFO ";
+      level_str = "[INFO]";
       break;
    case CY_LOG_DEBUG:
    default:
-      level_str = "DEBUG";
+      level_str = "[DEBUG]";
       break;
    }
 
-   return printf( "%s %s", level_str, logmsg);
+   return printf( "%7s %s", level_str, logmsg);
 }
 
 int main (void)
