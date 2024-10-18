@@ -60,6 +60,7 @@ static bool is_digio_sample_device = true;
 
 static TaskHandle_t uphy_task_hdl = NULL;
 static up_bustype_t start_bustype = UP_BUSTYPE_PROFINET;
+static uint32_t upstart_enable = false;
 
 int auto_start (up_bustype_t * bustype);
 
@@ -240,6 +241,8 @@ void uphy_task (void * arg)
 
    printf ("Ethernet connected.\n");
 
+   upstart_enable = true;
+
    /* if autostart is configured, automatically start u-phy
     * if not wait for shell console command */
    if (auto_start (&start_bustype) != 0)
@@ -349,6 +352,15 @@ void start_demo (void)
 
 void start_uphy (up_bustype_t bustype)
 {
+   if (upstart_enable == false)
+   {
+      /* Workaround due to that ECM hangs when no network cable is attached
+       * we need this check to avoid attempting to start uphy when it has
+       * no network nor is initialized */
+      printf ("up_start only possible when network is initialized\n");
+      return;
+   }
+
    if (uphy_task_hdl > 0)
    {
       start_bustype = bustype;
@@ -368,8 +380,8 @@ void shell_print_start_banner (void)
    printf ("  'help'       - list of available commands\n");
    printf ("  'help <cmd>' - detailed help\n");
    printf ("  'about'      - for information on this application\n\n");
-   printf (" Built:    %s\n", __DATE__ " at " __TIME__);
-   printf (" U-Phy MW: %s\n", up_version());
+   printf (" Built : %s\n", __DATE__ " at " __TIME__);
+   printf (" U-Phy : %s\n", up_version());
    printf ("%s\n\n", DELIMITER_STR);
 }
 
