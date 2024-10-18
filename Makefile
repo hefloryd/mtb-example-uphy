@@ -139,7 +139,11 @@ LINKER_SCRIPT=uphy-linker-script.ld
 # Touch demo application to refresh build date in serial shell banner
 # Install lwip snmp patch from rtlabs-uphy-lib middleware
 PREBUILD=touch source/uphy_demo_app.c && \
-cp -rf  $(SEARCH_rtlabs-uphy-lib)/src/lwip/src $(SEARCH_lwip)
+if [ ! -f uphy-lwip-patch-installed ]; then \
+    touch uphy-lwip-patch-installed; \
+    cp -rf  $(SEARCH_rtlabs-uphy-lib)/src/lwip/src $(SEARCH_lwip); \
+fi
+
 
 # Custom post-build commands to run.
 POSTBUILD=
