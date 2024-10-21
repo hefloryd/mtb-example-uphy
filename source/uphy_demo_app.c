@@ -59,10 +59,6 @@ static up_cfg_t cfg = {
 static bool is_digio_sample_device = true;
 
 static TaskHandle_t uphy_task_hdl = NULL;
-static up_bustype_t start_bustype = UP_BUSTYPE_PROFINET;
-static uint32_t upstart_enable = false;
-
-int auto_start (up_bustype_t * bustype);
 
 static const char * error_code_to_str (up_error_t error_code)
 {
@@ -218,18 +214,28 @@ up_t * up_app_init (up_bustype_t bustype)
    return up;
 }
 
-void uphy_task (void * arg)
+void uphy_task (void * type)
 {
    up_t * up;
+   up_bustype_t bustype = (up_bustype_t)type;
    cy_rslt_t result;
+   ip_config_t ip_config;
+
+   if (bustype == UP_BUSTYPE_PROFINET)
+   {
+      /* Profinet stack will handle IP addresses */
+      ip_config = IP_CONFIG_STATIC;
+   }
+   else
+   {
+      /* Use DHCP */
+      ip_config = IP_CONFIG_DYNAMIC;
+   }
 
    printf ("Init network\n");
    printf ("Application will hang until ethernet cable is inserted\n");
 
-   /* always start using static address to ensure connection manager
-    * completes even without a DHCP server */
-
-   result = connect_to_ethernet (IP_CONFIG_STATIC);
+   result = connect_to_ethernet (ip_config);
    if (result != CY_RSLT_SUCCESS)
    {
       printf (
@@ -240,23 +246,11 @@ void uphy_task (void * arg)
    }
 
    printf ("Ethernet connected.\n");
-
-   upstart_enable = true;
-
-   /* if autostart is configured, automatically start u-phy
-    * if not wait for shell console command */
-   if (auto_start (&start_bustype) != 0)
-   {
-      /* autostart not set, wait until user starts protocol */
-      uint32_t task_wait_flag = ulTaskNotifyTake (pdTRUE, portMAX_DELAY);
-      CY_ASSERT (task_wait_flag > 0);
-   }
-
    printf ("Starting U-Phy Demo\n");
    printf ("Active device model: \"%s\"\n", cfg.device->name);
 
    printf ("Init U-Phy Device \n");
-   up = up_app_init (start_bustype);
+   up = up_app_init (bustype);
 
    printf ("Run U-Phy Device \n");
    up_app_main (up);
@@ -335,7 +329,7 @@ int auto_start (up_bustype_t * bustype)
    return -1;
 }
 
-void start_demo (void)
+static void start_uphy (up_bustype_t bustype)
 {
    /* Only allow starting uphy once */
    if (uphy_task_hdl == NULL)
@@ -344,27 +338,21 @@ void start_demo (void)
          uphy_task,
          "uphy_task",
          5000,
-         NULL,
+         (void *)bustype,
          OS_PRIORITY_HIGH,
          &uphy_task_hdl);
    }
 }
 
-void start_uphy (up_bustype_t bustype)
+void start_demo (void)
 {
-   if (upstart_enable == false)
-   {
-      /* Workaround due to that ECM hangs when no network cable is attached
-       * we need this check to avoid attempting to start uphy when it has
-       * no network nor is initialized */
-      printf ("up_start only possible when network is initialized\n");
-      return;
-   }
+   up_bustype_t bustype;
 
-   if (uphy_task_hdl > 0)
+   /* if autostart is configured, automatically start u-phy
+    * if not wait for shell console command */
+   if (auto_start (&bustype) == 0)
    {
-      start_bustype = bustype;
-      xTaskNotifyGive (uphy_task_hdl);
+      start_uphy (bustype);
    }
 }
 
