@@ -31,6 +31,9 @@
 
 #include <stdio.h>
 
+/* Enable to run synchronous operation mode */
+#define APPLICATION_MODE_SYNCHRONOUS
+
 /* U-Phy callbacks */
 static void cb_avail (up_t * up, void * user_arg);
 static void cb_sync (up_t * up, void * user_arg);
@@ -39,6 +42,7 @@ static void cb_status_ind (up_t * up, uint32_t status, void * user_arg);
 static void cb_status_ind (up_t * up, uint32_t status, void * user_arg);
 static void cb_error_ind (up_t * up, up_error_t error_code, void * user_arg);
 static void cb_profinet_signal_led_ind (up_t * up, void * user_arg);
+static void cb_loop_ind (up_t * up, void * user_arg);
 
 static up_busconf_t up_busconf;
 
@@ -49,6 +53,7 @@ static up_cfg_t cfg = {
    .sync = cb_sync,
    .avail = cb_avail,
    .param_write_ind = cb_param_write_ind,
+   .poll_ind = cb_loop_ind,
    .status_ind = cb_status_ind,
    .error_ind = cb_error_ind,
    .profinet_signal_led_ind = cb_profinet_signal_led_ind,
@@ -142,6 +147,14 @@ static void cb_profinet_signal_led_ind (up_t * up, void * user_arg)
    led_profinet_signal();
 }
 
+static void cb_loop_ind (up_t * up, void * user_arg)
+{
+#if !defined(APPLICATION_MODE_SYNCHRONOUS)
+   up_write_inputs (up);
+   up_read_outputs (up);
+#endif
+}
+
 void up_app_main (up_t * up)
 {
    if (up_init_device (up) != 0)
@@ -162,12 +175,19 @@ void up_app_main (up_t * up)
       exit (EXIT_FAILURE);
    }
 
+#if defined(APPLICATION_MODE_SYNCHRONOUS)
+   if (up_write_event_mask(up, UP_EVENT_MASK_SYNCHRONOUS_MODE) != 0)
+   {
+      printf ("Failed to write eventmask mode\n");
+      exit (EXIT_FAILURE);
+   }
+#endif
+
    /* Write input signals to set initial values and status */
    up_write_inputs (up);
 
    printf ("Run event loop\n");
 
-   extern bool up_worker (up_t * up);
    while (up_worker (up) == true)
       ;
 
@@ -200,6 +220,7 @@ up_t * up_app_init (up_bustype_t bustype)
    case UP_BUSTYPE_ETHERNETIP:
       up_busconf.ethernetip = up_ethernetip_config;
       break;
+   case UP_BUSTYPE_MODBUS:
    case UP_BUSTYPE_ECAT:
    default:
       printf ("Bustype %d unsupported\n", bustype);
@@ -289,6 +310,15 @@ static int str_to_bus_config (const char * str, up_bustype_t * bustype)
       return 0;
    }
 #endif
+
+#if UP_DEVICE_MODBUS_SUPPORTED
+   if (strcmp (str, "modbus") == 0)
+   {
+      *bustype = UP_BUSTYPE_MODBUS;
+      return 0;
+   }
+#endif
+
    if (strcmp (str, "mock") == 0)
    {
       *bustype = UP_BUSTYPE_MOCK;
