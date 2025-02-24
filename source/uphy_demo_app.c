@@ -20,7 +20,7 @@
 
 #include "uphy_demo_app.h"
 #include "shell.h"
-#include "filesys.h"
+#include "rte_fs.h"
 #include "network.h"
 #include "math.h"
 #include "osal.h"
@@ -30,6 +30,10 @@
 #include <string.h>
 
 #include <stdio.h>
+
+#include "FreeRTOSConfig.h"
+#include "FreeRTOS.h"
+#include "task.h"
 
 /* Enable to run synchronous operation mode */
 #define APPLICATION_MODE_SYNCHRONOUS
@@ -339,11 +343,11 @@ static int str_to_bus_config (const char * str, up_bustype_t * bustype)
 int auto_start (up_bustype_t * bustype)
 {
    char buf[32];
-   int f = fs_open (STORAGE_ROOT "autostart", O_RDONLY);
+   RTE_FILE * f = rte_fs_fopen (STORAGE_ROOT "autostart", "r");
    if (f > 0)
    {
-      fs_read (f, buf, sizeof (buf));
-      fs_close (f);
+      rte_fs_fread (buf, 1, sizeof (buf), f);
+      rte_fs_fclose (f);
 
       if (str_to_bus_config (buf, bustype) == 0)
       {
@@ -358,7 +362,6 @@ int auto_start (up_bustype_t * bustype)
    }
    return -1;
 }
-
 static void start_uphy (up_bustype_t bustype)
 {
    /* Only allow starting uphy once */
@@ -515,9 +518,9 @@ int _cmd_autostart (int argc, char * argv[])
    fieldbus = argv[1];
    if ((argc == 2) && (str_to_bus_config (fieldbus, &bustype) == 0))
    {
-      int f = fs_open (STORAGE_ROOT "autostart", O_WRONLY | O_CREAT);
-      fs_write (f, fieldbus, strlen (fieldbus) + 1);
-      fs_close (f);
+      RTE_FILE * f = rte_fs_fopen (STORAGE_ROOT "autostart", "w");
+      rte_fs_fwrite (fieldbus, 1, strlen (fieldbus) + 1, f);
+      rte_fs_fclose (f);
 
       printf ("%s autostart added\n", fieldbus);
    }
@@ -525,7 +528,7 @@ int _cmd_autostart (int argc, char * argv[])
    {
       printf ("autostart disabled\n");
 
-      fs_unlink (STORAGE_ROOT "autostart");
+      rte_fs_remove (STORAGE_ROOT "autostart");
       return -1;
    }
 

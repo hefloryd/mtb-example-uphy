@@ -12,9 +12,8 @@
 
 #include "model.h"
 
-#ifndef NELEMENTS
-#define NELEMENTS(a) (sizeof(a) / sizeof((a)[0]))
-#endif
+#include "options.h"
+#include "osal.h" /* For NELEMENTS */
 
 #include <stdint.h>
 
