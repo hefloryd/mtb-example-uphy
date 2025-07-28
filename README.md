@@ -1,24 +1,23 @@
 
 # U-Phy Industrial Ethernet Connectivity Example
 
-This user example shows how to implement Industrial Ethernet connectivity using the U-Phy Middleware. 
+This user example shows how to implement Industrial Ethernet connectivity using the U-Phy Middleware.
 Currently, Profinet and EtherNet/IP are supported.
 
-The application implements a basic I/O device connecting inputs and outputs to the EVK buttons and LEDs. 
+The application implements a basic I/O device connecting inputs and outputs to the EVK buttons and LEDs.
 Profinet GSDML and EtherNet/IP EDS files for integration in an engineering tool are found in the `generated/` folder.
 
 After building and programming the example, the EVK can be connected to a Profinet, EtherNet/IP or ModBus TCP network for evaluation.
 
-Using U-Phy, the process data of the sample application can easily be redefined. 
-The inputs, outputs, and configuration parameters of the device are modeled using the U-Phy Device Builder. 
-Device description files such as Profinet GSDML and EtherNet/IP EDS are generated from the model. 
+Using U-Phy, the process data of the sample application can easily be redefined.
+The inputs, outputs, and configuration parameters of the device are modeled using the U-Phy Device Builder.
+Device description files such as Profinet GSDML and EtherNet/IP EDS are generated from the model.
 See the advanced section below for a step-by-step guide.
 
 ## About U-Phy
 
-U-Phy from RT-Labs provides a single and unified API for your favorite Industrial Ethernet protocols. 
-
-Check out the README and documentation for the U-Phy Middleware for information on how to develop 
+U-Phy from RT-Labs provides a single and unified API for your favorite Industrial Ethernet protocols.
+Check out the README and documentation for the U-Phy Middleware for information on how to develop
 Industrial Ethernet devices using U-Phy. Other resources:
 
 - [U-Phy](https://rt-labs.com/u-phy/) - General introduction to the U-Phy concept
@@ -40,6 +39,8 @@ Industrial Ethernet devices using U-Phy. Other resources:
     - Device Design 
     - Redefine Device I/O data using U-Phy Device Builder
     - Regenerate description files (GSDML, EDS) and code using U-Phy Generator (upgen)
+
+**Note** : The runtime of U-Phy stack is limited to 2 hours. To obtain the full version, please contact your regional sales representative of Infineon Technologies AG.
 
 ## Getting started
 
@@ -90,7 +91,6 @@ up_alarm             - up_alarm <add/remove> <slot_ix> <level> <error_type>
 up_autostart         - configure u-phy device autostart
 format_fs            - format the filesystem
 help                 - show help
-mac                  - read/write MAC address
 reboot               - reboot the device
 up_device            - show static device configuration
 up_signal            - get or set signal value and status
@@ -196,7 +196,7 @@ Note the content in the generated folder is overwritten. The script itself conta
 
 ## Requirements
 
-- [ModusToolbox&trade;](https://www.infineon.com/modustoolbox) v3.2 or later (tested with v3.2)
+- [ModusToolbox&trade;](https://www.infineon.com/modustoolbox) v3.2 or later (tested with v3.4)
 - Board support package (BSP) minimum required version for :
    - KIT_XMC72_EVK: v1.0.0
 - Programming language: C
