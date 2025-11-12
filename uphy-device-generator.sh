@@ -48,7 +48,7 @@ if [ -n "$2" ]; then
 fi
 
 os=$(uname -o)
-if [[ "$os" == "Linux" ]]; then
+if [[ "$os" == "GNU/Linux" ]]; then
   tool="../mtb_shared/rtlabs-uphy-lib/$uphy_lib_version/bin/upgen"
  elif [[ "$os" == "Cygwin" || "$os" == "Msys" ]]; then
   tool="../mtb_shared/rtlabs-uphy-lib/$uphy_lib_version/bin/upgen.exe"

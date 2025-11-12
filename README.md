@@ -182,7 +182,7 @@ The device I/O data is defined using the [U-Phy Device Builder](https://devicebu
 ### Regenerating Device-Specific Artifacts
 The U-Phy Device Generator (upgen) is part of the U-Phy Middleware. The executables are located in the `bin` folder, with versions available for both Linux and Windows.
 
-The script `run-uphy-device-generator.sh` in the project root folder is a helper utility for running the upgen tool. It can be run using the Modus shell. Pass your device model as an argument to the script to generate its artifacts.
+The script `uphy-device-generator.sh` in the project root folder is a helper utility for running the upgen tool. It can be run using the Modus shell. Pass your device model as an argument to the script to generate its artifacts.
 
 
 ```
