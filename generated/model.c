@@ -186,7 +186,7 @@ up_profinet_config_t up_profinet_config = {
 
 up_ciaobject_t ecat_I8_Inputs_txpdo_entries[] = {
    {
-      .index = 0x6000,
+      .index = 0x7000,
       .subindex = 0,
       .is_signal = true,
       .signal_or_param_ix = 0,
@@ -196,7 +196,7 @@ up_ciaobject_t ecat_I8_Inputs_txpdo_entries[] = {
 up_ciapdo_t ecat_I8_txpdos[] = {
    {
       .name = "Inputs",
-      .index = 0x1a00,
+      .index = 0x1A00,
       .n_entries = 1,
       .entries = ecat_I8_Inputs_txpdo_entries,
    },
@@ -204,7 +204,7 @@ up_ciapdo_t ecat_I8_txpdos[] = {
 
 up_ciaobject_t ecat_O8_Outputs_rxpdo_entries[] = {
    {
-      .index = 0x7000,
+      .index = 0x6000,
       .subindex = 0,
       .is_signal = true,
       .signal_or_param_ix = 0,
@@ -222,7 +222,7 @@ up_ciapdo_t ecat_O8_rxpdos[] = {
 
 up_ciaobject_t ecat_I8O8_Inputs_txpdo_entries[] = {
    {
-      .index = 0x6000,
+      .index = 0x7000,
       .subindex = 0,
       .is_signal = true,
       .signal_or_param_ix = 0,
@@ -232,7 +232,7 @@ up_ciaobject_t ecat_I8O8_Inputs_txpdo_entries[] = {
 up_ciapdo_t ecat_I8O8_txpdos[] = {
    {
       .name = "Inputs",
-      .index = 0x1a00,
+      .index = 0x1A00,
       .n_entries = 1,
       .entries = ecat_I8O8_Inputs_txpdo_entries,
    },
@@ -240,7 +240,7 @@ up_ciapdo_t ecat_I8O8_txpdos[] = {
 
 up_ciaobject_t ecat_I8O8_Outputs_rxpdo_entries[] = {
    {
-      .index = 0x7000,
+      .index = 0x6000,
       .subindex = 0,
       .is_signal = true,
       .signal_or_param_ix = 0,
@@ -340,6 +340,87 @@ up_ethernetip_config_t up_ethernetip_config = {
 
 up_modbus_config_t up_modbus_config = {
    .port = 502,
+};
+
+static up_cclink_item_t cclink_I8_inputs[] = {
+   {
+      /* Input 8 bits */
+      .index = 0,
+      .is_bits = true,
+   },
+};
+
+static up_cclink_item_t cclink_I8_outputs[] = {
+};
+
+static up_cclink_item_t cclink_O8_inputs[] = {
+};
+
+static up_cclink_item_t cclink_O8_outputs[] = {
+   {
+      /* Output 8 bits */
+      .index = 0,
+      .is_bits = true,
+   },
+};
+
+static up_cclink_item_t cclink_I8O8_inputs[] = {
+   {
+      /* Input 8 bits */
+      .index = 0,
+      .is_bits = true,
+   },
+};
+
+static up_cclink_item_t cclink_I8O8_outputs[] = {
+   {
+      /* Output 8 bits */
+      .index = 0,
+      .is_bits = true,
+   },
+};
+
+static up_cclink_module_t cclink_modules[] = {
+   {
+      .n_inputs = 1,
+      .n_outputs = 0,
+      .inputs = cclink_I8_inputs,
+      .outputs = cclink_I8_outputs,
+   },
+   {
+      .n_inputs = 0,
+      .n_outputs = 1,
+      .inputs = cclink_O8_inputs,
+      .outputs = cclink_O8_outputs,
+   },
+   {
+      .n_inputs = 1,
+      .n_outputs = 1,
+      .inputs = cclink_I8O8_inputs,
+      .outputs = cclink_I8O8_outputs,
+   },
+};
+
+static up_cclink_station_t cclink_stations[] = {
+   {
+      .module_ix = 0,
+   },
+   {
+      .module_ix = 1,
+   },
+   {
+      .module_ix = 2,
+   },
+};
+
+up_cclink_config_t up_cclink_config = {
+   .vendor_code = 0x1067,
+   .model_code = 0x1234,
+   .equipment_ver = 0x0001,
+   .n_modules = 3,
+   .n_stations = 3,
+   .modules = cclink_modules,
+   .stations = cclink_stations,
 };
 
 up_mockadapter_config_t up_mock_config = {0};

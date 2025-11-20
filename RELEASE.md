@@ -1,5 +1,12 @@
 # U-Phy Sample Application 
 
+#### v0.8.0
+* Added CC-Link CCIEFB adapter
+* Moved filesystem to internal flash. QSPI flash is no longer required.
+  - The filesystem must be formatted on first boot. The contents of the old QSPI filesytem, if any, are not preserved.
+* Upgrade to latest U-Phy core library (v1.0.4)
+  - https://docs.rt-labs.com/u-phy/reference/release-notes.html
+
 #### v0.7.2
 * Added Modbus TCP adapter
 * Added console command 'show_heap' to show current heap usage
