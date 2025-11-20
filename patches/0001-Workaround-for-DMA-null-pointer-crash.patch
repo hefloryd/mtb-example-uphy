@@ -1,0 +1,62 @@
+From c523e37d4c4a142a28fa959a6871357569bac440 Mon Sep 17 00:00:00 2001
+From: mattiasrtlabs <34244802+mattiasrtlabs@users.noreply.github.com>
+Date: Tue, 10 Jun 2025 14:40:44 +0200
+Subject: [PATCH] Workaround for DMA null pointer crash
+
+* If a higher priority thread causes queue to build up
+  there is no handling of this usecase causing a NULL
+  pointer to be passed as buffer to DMA
+---
+ drivers/source/cy_ethif.c | 22 +++++++++++++++++++++-
+ 1 file changed, 21 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/source/cy_ethif.c b/drivers/source/cy_ethif.c
+index 4dd3423..66dbee9 100644
+--- a/drivers/source/cy_ethif.c
++++ b/drivers/source/cy_ethif.c
+@@ -1661,6 +1661,14 @@ static void Cy_ETHIF_EventTxError(void *pcy_privatedata, uint32_t u32event, uint
+ * \param u8qnum Queue number
+ *
+ *******************************************************************************/
++
++#define STATIC_ALIGNED_BUFFER(name, size) \
++    static uint8_t name[size] __attribute__((aligned(32)))
++
++#define DMA_SCRATCH_BUF_MAX_LEN 1500
++
++STATIC_ALIGNED_BUFFER(dma_scratch_buf, DMA_SCRATCH_BUF_MAX_LEN);
++
+ static void Cy_ETHIF_EventRxFrame(void *pcy_privatedata, uint8_t u8qnum)
+ {
+     uint32_t        u32RxNum;
+@@ -1693,6 +1701,18 @@ static void Cy_ETHIF_EventRxFrame(void *pcy_privatedata, uint8_t u8qnum)
+             tmpBufAddr.vAddr = tmpBufAddr.pAddr;
+         }
+ 
++        /* tmp workaround -- need proper patch */
++        if (tmpBufAddr.pAddr == (uintptr_t)NULL)
++        {
++            /* if this occurs all buffers from rxgetbuff are occupied
++             * and we need to give a scratch buffer to DMA to prevent
++             * crashing
++             * Need to handle this properly via flow off or similar.
++             * */
++            tmpBufAddr.pAddr = (uintptr_t)dma_scratch_buf;
++            tmpBufAddr.vAddr = (uintptr_t)tmpBufAddr.pAddr;
++        }
++
+         (void)cyp_ethif_gemgxlobj->readRxBuf((void *)cyp_ethif_pd[u8EthIfInstance],
+                                           u8qnum,
+                                           &tmpBufAddr,
+@@ -1708,7 +1728,7 @@ static void Cy_ETHIF_EventRxFrame(void *pcy_privatedata, uint8_t u8qnum)
+                                          &Rx_DescStat);
+ 
+             /* application callback function */
+-            if (stccallbackfunctions[u8EthIfInstance].rxframecb != NULL)
++            if ((tmpBufAddr.pAddr != (uintptr_t)dma_scratch_buf) && stccallbackfunctions[u8EthIfInstance].rxframecb != NULL)
+             {
+                 stccallbackfunctions[u8EthIfInstance].rxframecb(base, (uint8_t*)tmpBufAddr.pAddr, Rx_DescStat.bufLen);
+             }
+-- 
+2.43.0
+

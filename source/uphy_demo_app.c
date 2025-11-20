@@ -227,6 +227,9 @@ up_t * up_app_init (up_bustype_t bustype)
    case UP_BUSTYPE_MODBUS:
 	  up_busconf.modbus = up_modbus_config;
 	  break;
+   case UP_BUSTYPE_CCLINK:
+      up_busconf.cclink = up_cclink_config;
+      break;
    case UP_BUSTYPE_ECAT:
    default:
       printf ("Bustype %d unsupported\n", bustype);
@@ -248,9 +251,9 @@ void uphy_task (void * type)
    cy_rslt_t result;
    ip_config_t ip_config;
 
-   if (bustype == UP_BUSTYPE_PROFINET)
+   if (bustype == UP_BUSTYPE_PROFINET || bustype == UP_BUSTYPE_CCLINK)
    {
-      /* Profinet stack will handle IP addresses */
+      /* Protocol stack will handle IP addresses */
       ip_config = IP_CONFIG_STATIC;
    }
    else
@@ -321,6 +324,14 @@ static int str_to_bus_config (const char * str, up_bustype_t * bustype)
    if (strcmp (str, "modbus") == 0)
    {
       *bustype = UP_BUSTYPE_MODBUS;
+      return 0;
+   }
+#endif
+
+#if UP_DEVICE_CCLINK_SUPPORTED
+   if (strcmp (str, "cclink") == 0)
+   {
+      *bustype = UP_BUSTYPE_CCLINK;
       return 0;
    }
 #endif
@@ -413,11 +424,12 @@ int _cmd_about (int argc, char * argv[])
    printf ("\r\nIndustrial Ethernet Demo\r\n\r\n");
    printf ("This user example shows how to implement Industrial Ethernet\r\n"
            "connectivity using the U-Phy Middleware. Currently Profinet,\r\n"
-           "Ethernet/IP and ModBus TCP are supported.\r\n\r\n"
+           "Ethernet/IP, CC-Link and ModBus TCP are supported.\r\n\r\n"
            "The application implements a basic I/O device connecting inputs\r\n"
            "and outputs to the EVK buttons and LEDs.\r\n\r\n"
-           "Profinet GSDML and EtherNet/IP EDS files for integration in an\r\n"
-           "engineering tool are found in the `generated/` folder.\r\n\r\n"
+           "Profinet GSDML, EtherNet/IP EDS files, or CC-Link CSP+ files for\r\n"
+           "integration in an engineering tool are found in the `generated/`\r\n"
+           "folder.\r\n\r\n"
            "Start communication using 'up_start' command.\r\n");
    return 0;
 }
@@ -502,7 +514,7 @@ const shell_cmd_t cmd_start = {
    .help_short = "start u-phy protocol",
    .help_long = "Start u-phy host device.\n"
                 "Usage: up_start <protocol>\n"
-                "where protocol can be profinet, ethernetip, modbus or mock\n"};
+                "where protocol can be profinet, ethernetip, modbus, cclink or mock\n"};
 
 SHELL_CMD (cmd_start);
 

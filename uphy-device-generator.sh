@@ -20,7 +20,7 @@
 # Generated artifacts are stored in the "generated" folder.
 # The content in the "generated" folder is overwritten.
 #
-# Note that the path to rtlabs-uphy-lib including version in the 
+# Note that the path to rtlabs-uphy-lib including version in the
 # modus workspace is used to locate the upgen executable.
 #
 
@@ -48,7 +48,7 @@ if [ -n "$2" ]; then
 fi
 
 os=$(uname -o)
-if [[ "$os" == "Linux" ]]; then
+if [[ "$os" == "GNU/Linux" ]]; then
   tool="../mtb_shared/rtlabs-uphy-lib/$uphy_lib_version/bin/upgen"
  elif [[ "$os" == "Cygwin" || "$os" == "Msys" ]]; then
   tool="../mtb_shared/rtlabs-uphy-lib/$uphy_lib_version/bin/upgen.exe"
@@ -65,7 +65,7 @@ fi
 
 echo "Run U-Phy Generator"
 set -x
-$($tool export -d generated --generator Code $model)
-$($tool export -d generated --generator Profinet $model)
-$($tool export -d generated --generator EtherNetIP $model)
-
+$($tool export -d $destination --generator Code $model)
+$($tool export -d $destination --generator Profinet $model)
+$($tool export -d $destination --generator EtherNetIP $model)
+$($tool export -d $destination --generator CC-Link $model)

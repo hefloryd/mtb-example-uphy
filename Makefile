@@ -105,6 +105,9 @@ DEFINES=$(MBEDTLSFLAGS) CY_RTOS_AWARE CYBSP_ETHERNET_CAPABLE CY_RETARGET_IO_CONV
 # Disable the data cache for XMC7000 devices
 DEFINES+=CY_DISABLE_XMC7000_DATA_CACHE PRINT_HEAP_USAGE
 
+# Enable lwIP netif broadcast
+DEFINES+=ETH_BROADCAST_EN
+
 # Enable littlefs lock/unlock callbacks
 DEFINES+=LFS_THREADSAFE
 
@@ -138,13 +141,19 @@ LDLIBS=
 # Path to the linker script to use (if empty, use the default linker script).
 LINKER_SCRIPT=uphy-linker-script.ld
 
+PATCH1 = ${CURDIR}/patches/0001-Workaround-for-DMA-null-pointer-crash.patch
+
 # Custom pre-build commands to run.
 # Touch demo application to refresh build date in serial shell banner
 # Install lwip snmp patch from rtlabs-uphy-lib middleware
+# Patch mtb-pdl-cat1 ethernet driver
 PREBUILD=touch source/uphy_demo_app.c && \
 if [ ! -f uphy-lwip-patch-installed ]; then \
     touch uphy-lwip-patch-installed; \
     cp -rf  $(SEARCH_rtlabs-uphy-lib)/src/lwip/src $(SEARCH_lwip); \
+    pushd  $(SEARCH_mtb-pdl-cat1); \
+    git -c user.name="${APPNAME}" -c user.email="${APPNAME}@rt-labs.com" am ${PATCH1}; \
+    popd; \
 fi
 
 

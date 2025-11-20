@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='iso-8859-1'?>
-<ISO15745Profile xmlns="http://www.profibus.com/GSDML/2003/11/DeviceProfile" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.profibus.com/GSDML/2003/11/DeviceProfile ..\xsd\GSDML-DeviceProfile-V2.43.xsd">
+<ISO15745Profile xmlns="http://www.profibus.com/GSDML/2003/11/DeviceProfile" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.profibus.com/GSDML/2003/11/DeviceProfile ..\xsd\GSDML-DeviceProfile-V2.44.xsd">
     <ProfileHeader>
         <ProfileIdentification>PROFINET Device Profile</ProfileIdentification>
         <ProfileRevision>1.00</ProfileRevision>
@@ -22,7 +22,7 @@
         </DeviceFunction>
         <ApplicationProcess>
             <DeviceAccessPointList>
-                <DeviceAccessPointItem ID="IDD_1" PNIO_Version="V2.43" RequiredSchemaVersion="V2.4" PhysicalSlots="0..4" ModuleIdentNumber="0x00000001" MinDeviceInterval="32" DNS_CompatibleName="u-phy-dev" FixedInSlots="0" ObjectUUID_LocalIndex="1" DeviceAccessSupported="false" MultipleWriteSupported="true" CheckDeviceID_Allowed="true" NameOfStationNotTransferable="false" LLDP_NoD_Supported="true" ResetToFactoryModes="1..2" IOXS_Required="true" AddressAssignment="DCP" RemoteApplicationTimeout="300" MaxSupportedRecordSize="4068" PowerOnToCommReady="0" ParameterizationSpeedupSupported="false" SharedDeviceSupported="false" SharedInputSupported="false" NumberOfImplicitAR="1" AutoConfigurationSupported="false" CIR_Supported="false" PrmBeginPrmEndSequenceSupported="false" IO_SupervisorSupported="false" PROFIenergyASE_Supported="false" AdaptsRealIdentification="false">
+                <DeviceAccessPointItem ID="IDD_1" PNIO_Version="V2.44" RequiredSchemaVersion="V2.4" PhysicalSlots="0..4" ModuleIdentNumber="0x00000001" MinDeviceInterval="32" DNS_CompatibleName="u-phy-dev" FixedInSlots="0" ObjectUUID_LocalIndex="1" DeviceAccessSupported="false" MultipleWriteSupported="true" CheckDeviceID_Allowed="true" NameOfStationNotTransferable="false" LLDP_NoD_Supported="true" ResetToFactoryModes="1..2" IOXS_Required="true" AddressAssignment="DCP" RemoteApplicationTimeout="300" MaxSupportedRecordSize="4068" PowerOnToCommReady="0" ParameterizationSpeedupSupported="false" SharedDeviceSupported="false" SharedInputSupported="false" NumberOfImplicitAR="1" AutoConfigurationSupported="false" CIR_Supported="false" PrmBeginPrmEndSequenceSupported="false" IO_SupervisorSupported="false" PROFIenergyASE_Supported="false" AdaptsRealIdentification="false">
                     <ModuleInfo>
                         <Name TextId="IDT_DAP_1_NAME" />
                         <InfoText TextId="IDT_DAP_1_INFO" />
@@ -141,7 +141,6 @@
                 <PrimaryLanguage>
                     <Text TextId="IDT_NAME_IS" Value="X1" />
                     <Text TextId="IDT_NAME_PS1" Value="X1 P1" />
-                    <Text TextId="IDT_NAME_PS2" Value="X1 P2" />
                     <Text TextId="IDT_INFO_DEV" Value="U-Phy sample device. Digital inputs and outputs supported." />
                     <Text TextId="IDT_DAP_1_NAME" Value="U-Phy DIGIO Sample" />
                     <Text TextId="IDT_DAP_1_INFO" Value="U-Phy sample device. Digital inputs and outputs supported." />
