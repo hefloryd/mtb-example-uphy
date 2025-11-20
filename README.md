@@ -5,13 +5,13 @@ This user example shows how to implement Industrial Ethernet connectivity using 
 Currently, Profinet and EtherNet/IP are supported.
 
 The application implements a basic I/O device connecting inputs and outputs to the EVK buttons and LEDs.
-Profinet GSDML and EtherNet/IP EDS files for integration in an engineering tool are found in the `generated/` folder.
+Profinet GSDML, EtherNet/IP EDS and CC-Link CSP+ files for integration in an engineering tool are found in the `generated/` folder.
 
-After building and programming the example, the EVK can be connected to a Profinet, EtherNet/IP or ModBus TCP network for evaluation.
+After building and programming the example, the EVK can be connected to a Profinet, EtherNet/IP, CC-Link or ModBus TCP network for evaluation.
 
 Using U-Phy, the process data of the sample application can easily be redefined.
 The inputs, outputs, and configuration parameters of the device are modeled using the U-Phy Device Builder.
-Device description files such as Profinet GSDML and EtherNet/IP EDS are generated from the model.
+Device description files such as Profinet GSDML, EtherNet/IP EDS and CC-Link CSP+ are generated from the model.
 See the advanced section below for a step-by-step guide.
 
 ## About U-Phy
@@ -28,6 +28,7 @@ Industrial Ethernet devices using U-Phy. Other resources:
     - Profinet Device
     - EtherNet/IP Adapter
     - Modbus TCP Adapter
+    - CC-Link Adapter
 - Command Line Interface (CLI)
     - Configuration of active protocol
     - Get/Set I/O data
@@ -38,7 +39,7 @@ Industrial Ethernet devices using U-Phy. Other resources:
 - U-Phy Middleware (Advanced)
     - Device Design 
     - Redefine Device I/O data using U-Phy Device Builder
-    - Regenerate description files (GSDML, EDS) and code using U-Phy Generator (upgen)
+    - Regenerate description files (GSDML, EDS, CSP+) and code using U-Phy Generator (upgen)
 
 **Note** : The runtime of U-Phy stack is limited to 2 hours. To obtain the full version, please contact your regional sales representative of Infineon Technologies AG.
 
@@ -109,7 +110,7 @@ Ethernet/IP is supported.
 The application implements a basic I/O device connecting inputs
 and outputs to the EVK buttons and LEDs.
 
-Profinet GSDML and EtherNet/IP EDS files for integration in an
+Profinet GSDML, EtherNet/IP EDS and CC-Link CSP+ files for integration in an
 engineering tool are found in the `generated/` folder.
 
 Start communication using 'up_start' command.
@@ -129,7 +130,7 @@ The default device supports the following I/O data modules:
 - **IO8** - 8 Bits Input/Output
   - Not used
 
-In the U-Phy concept, devices are defined by a model in JSON format. Device description files (Profinet GSDML, EtherNet/IP EDS) and device-specific code are generated using the device generator tool. The default device model is found in the `model/model.json` file, and the device-specific files are located in the `generated/` folder.
+In the U-Phy concept, devices are defined by a model in JSON format. Device description files (Profinet GSDML, EtherNet/IP EDS, CC-Link CSP+) and device-specific code are generated using the device generator tool. The default device model is found in the `model/model.json` file, and the device-specific files are located in the `generated/` folder.
 
 Note that the CLI can be used to watch or set the I/O data.
   
@@ -152,7 +153,7 @@ IP address may also be shown via shell command 'netcfg'
 
 ### Configuring network
 
-Out of the box, this sample app will configure DHCP for Ethernet/IP and static ip address when selecting Profinet.
+Out of the box, this sample app will configure DHCP for Ethernet/IP and CC-Link, and static ip address when selecting Profinet.
 Network configuration may be set in runtime using the 'netcfg' console command.
 
 The default static IP is configured in mtb_shared/rtlabs-uphy-lib/latest-v0.X/src/network/network.h
@@ -190,6 +191,7 @@ The script `run-uphy-device-generator.sh` in the project root folder is a helper
   +++ ../mtb_shared/rtlabs-uphy-lib/latest-v1.x/bin/upgen.exe export -d generated --generator Code model/digio.json
   +++ ../mtb_shared/rtlabs-uphy-lib/latest-v1.x/bin/upgen.exe export -d generated --generator Profinet model/digio.json
   +++ ../mtb_shared/rtlabs-uphy-lib/latest-v1.x/bin/upgen.exe export -d generated --generator EtherNetIP model/digio.json
+  +++ ../mtb_shared/rtlabs-uphy-lib/latest-v1.x/bin/upgen.exe export -d generated --generator CC-Link model/digio.json
 ```
 
 Note the content in the generated folder is overwritten. The script itself contains some comments that may be useful.

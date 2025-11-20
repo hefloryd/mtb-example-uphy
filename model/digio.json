@@ -59,6 +59,10 @@
       },
       "modbus": {
         "port": "502"
+      },
+      "cclink": {
+        "model_code": "0x1234",
+        "equipment_ver": "0x000b"
       }
     }
   ],
@@ -230,5 +234,8 @@
   },
   "ethernetip": {
     "vendor_id": "1772"
+  },
+  "cclink": {
+    "vendor_code": "0x1067"
   }
 }
