@@ -48,6 +48,9 @@ static void cb_error_ind (up_t * up, up_error_t error_code, void * user_arg);
 static void cb_profinet_signal_led_ind (up_t * up, void * user_arg);
 static void cb_loop_ind (up_t * up, void * user_arg);
 
+extern void up_core_init (void);
+extern void up_core_set_status (uint32_t status);
+
 static up_busconf_t up_busconf;
 
 static up_cfg_t cfg = {
@@ -236,8 +239,8 @@ up_t * up_app_init (up_bustype_t bustype)
       break;
    }
 
-   extern void up_core_init (void); // TBD - why not in header-file
    up_core_init();
+   up_core_set_status (UP_CORE_CONNECTED);
 
    up = up_init (&cfg);
 
